@@ -1,4 +1,5 @@
 import { toZonedTime, formatInTimeZone } from "date-fns-tz";
+import { addDays } from "date-fns";
 
 export function getCurrentHourInTimezone(date: Date, timezone: string): number {
   const zoned = toZonedTime(date, timezone);
@@ -25,3 +26,19 @@ export function isBusinessHour(hour: number): boolean {
 export function isSleepingHour(hour: number): boolean {
   return hour >= 22 || hour < 7;
 }
+
+/** Get display date with dayOffset applied */
+export function getDisplayDate(now: Date, dayOffset: number): Date {
+  return addDays(now, dayOffset);
+}
+
+/** Format timezone abbreviation (e.g. PST, IST) */
+export function getTimezoneAbbr(date: Date, timezone: string): string {
+  return formatInTimeZone(date, timezone, "zzz");
+}
+
+/** Format date for header display */
+export function formatDisplayDate(date: Date, timezone: string): string {
+  return formatInTimeZone(date, timezone, "EEE, MMM d, yyyy");
+}
+
