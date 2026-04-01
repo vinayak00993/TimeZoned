@@ -131,52 +131,47 @@ export function VerticalTimeTable() {
     <div className="overflow-x-auto">
       <div className="mx-auto max-w-2xl">
         {/* Sticky header */}
-        <div className="sticky top-0 z-20 flex bg-background border-b border-border">
-          {zones.map((zone, index) => {
-            const liveTime = formatCurrentTime(currentTime, zone.timezone);
-            const abbr = getTimezoneAbbr(displayDate, zone.timezone);
-            const headerDate = fmtTz(currentTime, zone.timezone, "MMM d");
+        <div className="sticky top-0 z-20 bg-background pb-2 pt-1">
+          <div className="flex gap-2">
+            {zones.map((zone, index) => {
+              const liveTime = formatCurrentTime(currentTime, zone.timezone);
+              const abbr = getTimezoneAbbr(displayDate, zone.timezone);
+              const headerDate = fmtTz(currentTime, zone.timezone, "MMM d");
 
-            return (
-              <div
-                key={zone.id}
-                className={cn(
-                  "group relative min-w-[140px] flex-1 bg-background px-3 py-3",
-                  index > 0 && "border-l border-border",
-                  dragIndex === index && "opacity-50",
-                  overIndex === index &&
-                    dragIndex !== null &&
-                    "border-l-2 border-l-blue-500"
-                )}
-                draggable
-                onDragStart={() => handleDragStart(index)}
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDragEnd={handleDragEnd}
-              >
-                <div className="flex flex-col items-center text-center relative py-1">
-                  {/* Drag handle — top left */}
-                  <GripVertical className="absolute left-0 top-1 size-3 cursor-grab text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                  {/* Remove button — top right */}
+              return (
+                <div
+                  key={zone.id}
+                  className={cn(
+                    "group relative min-w-[140px] flex-1 rounded-md border border-border/60 bg-card px-4 py-3 text-center",
+                    dragIndex === index && "opacity-50",
+                    overIndex === index && dragIndex !== null && "border-blue-400/70"
+                  )}
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragEnd={handleDragEnd}
+                >
+                  <GripVertical className="absolute left-2 top-2 size-3 cursor-grab text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                   <button
                     onClick={() => removeZone(zone.id)}
-                    className="absolute right-0 top-1 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+                    className="absolute right-2 top-2 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
                     aria-label={`Remove ${zone.label}`}
                   >
                     <X className="size-3" />
                   </button>
-                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  <div className="text-sm font-semibold text-foreground">
                     {zone.label}
                   </div>
-                  <div className="font-mono text-2xl font-bold tabular-nums leading-tight mt-0.5" suppressHydrationWarning>
+                  <div className="font-mono text-2xl font-bold tabular-nums leading-tight mt-1" suppressHydrationWarning>
                     {liveTime}
                   </div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                  <div className="text-[11px] text-muted-foreground mt-0.5">
                     {abbr} &middot; {headerDate}
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
         {/* Slot rows */}
