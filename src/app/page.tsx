@@ -91,7 +91,7 @@ function TimezoneApp() {
     }
 
     const storedTheme = localStorage.getItem("timezoned-theme");
-    const theme = storedTheme === "light" ? "light" : "dark";
+    const theme = storedTheme === "dark" ? "dark" : "light";
     setTheme(theme);
   }, [searchParams, setZones, setTheme]);
 
@@ -112,10 +112,17 @@ function TimezoneApp() {
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-border px-4 py-3 md:px-6">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <button
+            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+            onClick={() => {
+              localStorage.removeItem("timezoned-zones");
+              window.location.href = "/";
+            }}
+            title="Back to home"
+          >
             <Globe className="size-5 text-accent-warm" />
-            <h1 className="text-2xl font-heading font-medium tracking-wide">TimeZoned</h1>
-          </div>
+            <h1 className="text-lg md:text-2xl font-heading font-medium tracking-wide hidden sm:block">TimeZoned</h1>
+          </button>
           <DayNavigation />
           <div className="flex items-center gap-2">
             <AddTimezone />

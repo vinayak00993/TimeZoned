@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cities, type City } from "@/data/cities";
@@ -9,8 +9,10 @@ import { useTimezoneStore } from "@/store/timezone-store";
 export function AddTimezone() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const { zones, addZone } = useTimezoneStore();
 
   const filtered = query.trim()
@@ -22,9 +24,16 @@ export function AddTimezone() {
       )
     : cities;
 
+  // Only prevent adding the exact same city twice (same name) — 
+  // cities sharing a timezone (Houston/Dallas/Chicago) are all allowed
   const available = filtered.filter(
-    (c) => !zones.some((z) => z.timezone === c.timezone && z.label === c.name)
+    (c) => !zones.some((z) => z.label === c.name)
   );
+
+  // Reset active index when results change
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [query]);
 
   useEffect(() => {
     if (open) {
@@ -34,24 +43,27 @@ export function AddTimezone() {
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
         setQuery("");
       }
     }
     if (open) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [open]);
 
+  // Scroll active item into view
+  useEffect(() => {
+    if (!listRef.current) return;
+    const active = listRef.current.querySelector(`[data-index="${activeIndex}"]`) as HTMLElement;
+    active?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex]);
+
   function handleSelect(city: City) {
     addZone({
-      id: `${city.timezone}-${city.name}`.toLowerCase().replace(/[\s/]/g, "-"),
+      id: `${city.timezone}-${city.name}-${Date.now()}`.toLowerCase().replace(/[\s/]/g, "-"),
       timezone: city.timezone,
       label: city.name,
       country: city.country,
@@ -59,6 +71,23 @@ export function AddTimezone() {
     setOpen(false);
     setQuery("");
   }
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!open || available.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(i + 1, available.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (available[activeIndex]) handleSelect(available[activeIndex]);
+    } else if (e.key === "Escape") {
+      setOpen(false);
+      setQuery("");
+    }
+  }, [open, available, activeIndex]);
 
   return (
     <div className="relative" ref={containerRef}>
@@ -82,26 +111,29 @@ export function AddTimezone() {
               placeholder="Search city or timezone..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
           </div>
-          <div className="mt-2 max-h-64 overflow-y-auto">
+          <div ref={listRef} className="mt-2 max-h-64 overflow-y-auto">
             {available.length === 0 ? (
               <p className="px-2 py-4 text-center text-sm text-muted-foreground">
                 No timezones found
               </p>
             ) : (
-              available.map((city) => (
+              available.map((city, idx) => (
                 <button
                   key={`${city.timezone}-${city.name}`}
+                  data-index={idx}
                   onClick={() => handleSelect(city)}
-                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent transition-colors"
+                  onMouseEnter={() => setActiveIndex(idx)}
+                  className={`flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm transition-colors ${
+                    idx === activeIndex ? "bg-accent" : "hover:bg-accent"
+                  }`}
                 >
                   <span className="font-medium">
                     {city.name}
-                    <span className="ml-1.5 text-muted-foreground">
-                      {city.country}
-                    </span>
+                    <span className="ml-1.5 text-muted-foreground">{city.country}</span>
                   </span>
                   <span className="text-xs text-muted-foreground truncate ml-2 max-w-[140px]">
                     {city.timezone}
