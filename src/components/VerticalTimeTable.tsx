@@ -159,7 +159,7 @@ export function VerticalTimeTable() {
                       <div className="text-sm font-semibold leading-tight">
                         {zone.label}
                       </div>
-                      <div className="mt-0.5 font-mono text-lg font-bold tabular-nums leading-tight">
+                      <div className="mt-0.5 font-mono text-lg font-bold tabular-nums leading-tight" suppressHydrationWarning>
                         {liveTime}
                       </div>
                       <div className="text-[10px] font-medium text-muted-foreground">
@@ -193,7 +193,7 @@ export function VerticalTimeTable() {
                 key={slotIdx}
                 ref={isCurrentRow ? currentRowRef : undefined}
                 className={cn(
-                  "flex items-center gap-0 rounded-md border mb-1 px-3 py-1.5 transition-colors cursor-pointer",
+                  "flex items-center gap-0 rounded-md border mb-1 py-1.5 transition-colors cursor-pointer overflow-hidden",
                   // Default state
                   "border-border/40",
                   // Current time row (lowest priority highlight)
@@ -208,7 +208,7 @@ export function VerticalTimeTable() {
                 onClick={() => setSelectedSlot(selectedSlot === slotIdx ? null : slotIdx)}
               >
                 {/* One cell per timezone */}
-                {zones.map((zone) => {
+                {zones.map((zone, index) => {
                   const zoned = toZoned(utcForSlot, zone.timezone);
                   const zHour = zoned.getHours();
                   const zMinute = zoned.getMinutes();
@@ -231,7 +231,8 @@ export function VerticalTimeTable() {
                     <div
                       key={zone.id}
                       className={cn(
-                        "min-w-[140px] flex-1 whitespace-nowrap font-mono text-sm tabular-nums",
+                        "min-w-[140px] flex-1 whitespace-nowrap font-mono text-sm tabular-nums px-3",
+                        index > 0 && "border-l border-border/50",
                         dayDiff === "prev" &&
                           "text-amber-700 dark:text-amber-400",
                         dayDiff === "next" &&
