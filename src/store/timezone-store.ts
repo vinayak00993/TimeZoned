@@ -34,7 +34,7 @@ const DEFAULT_ZONES: TimezoneEntry[] = [
     country: "US",
   },
   {
-    id: "asia-kolkata",
+    id: "asia-kolkata-mumbai",
     timezone: "Asia/Kolkata",
     label: "Mumbai",
     country: "IN",
