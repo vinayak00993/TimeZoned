@@ -66,12 +66,19 @@ function TimezoneApp() {
     const tzParam = searchParams.get("tz");
     if (tzParam) {
       const tzList = tzParam.split(",").filter(Boolean);
-      const zonesFromUrl = tzList.map((tz) => {
-        const city = cities.find((c) => c.timezone === tz);
+      const zonesFromUrl = tzList.map((entry) => {
+        // Support both "timezone:CityName" (new) and "timezone" (legacy)
+        const colonIdx = entry.indexOf(":");
+        const tz = colonIdx > -1 ? entry.slice(0, colonIdx) : entry;
+        const nameHint = colonIdx > -1 ? decodeURIComponent(entry.slice(colonIdx + 1)) : null;
+        const city = nameHint
+          ? cities.find((c) => c.timezone === tz && c.name === nameHint) || cities.find((c) => c.timezone === tz)
+          : cities.find((c) => c.timezone === tz);
+        const label = nameHint || city?.name || tz.split("/").pop()?.replace(/_/g, " ") || tz;
         return {
-          id: `${tz}-${city?.name || tz}`.toLowerCase().replace(/[\s/]/g, "-"),
+          id: `${tz}-${label}-${Date.now()}`.toLowerCase().replace(/[\s/]/g, "-"),
           timezone: tz,
-          label: city?.name || tz.split("/").pop()?.replace(/_/g, " ") || tz,
+          label,
           country: city?.country || "",
         };
       });
@@ -96,7 +103,8 @@ function TimezoneApp() {
   }, [searchParams, setZones, setTheme]);
 
   useEffect(() => {
-    const tzParam = zones.map((z) => z.timezone).join(",");
+    // Encode as "timezone:CityName" so URLs preserve city identity
+    const tzParam = zones.map((z) => `${z.timezone}:${encodeURIComponent(z.label)}`).join(",");
     const timer = setTimeout(() => {
       const url = new URL(window.location.href);
       const current = url.searchParams.get("tz");
