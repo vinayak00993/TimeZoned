@@ -144,7 +144,7 @@ export function VerticalTimeTable() {
                   className={cn(
                     "group relative min-w-[140px] flex-1 rounded-md border border-border/60 bg-card px-4 py-3 text-center",
                     dragIndex === index && "opacity-50",
-                    overIndex === index && dragIndex !== null && "border-blue-400/70"
+                    overIndex === index && dragIndex !== null && "border-accent-warm/70"
                   )}
                   draggable
                   onDragStart={() => handleDragStart(index)}
@@ -159,7 +159,7 @@ export function VerticalTimeTable() {
                   >
                     <X className="size-3" />
                   </button>
-                  <div className="text-sm font-semibold text-foreground">
+                  <div className="text-base font-heading font-medium tracking-wide text-foreground">
                     {zone.label}
                   </div>
                   <div className="font-mono text-2xl font-bold tabular-nums leading-tight mt-1" suppressHydrationWarning>
@@ -191,11 +191,11 @@ export function VerticalTimeTable() {
                   // Default state
                   "border-border/40",
                   // Current time row (lowest priority highlight)
-                  isCurrentRow && !isSelected && !isHovered && "bg-white/5 ring-1 ring-white/10 ring-inset",
+                  isCurrentRow && !isSelected && !isHovered && "bg-highlight/20 ring-1 ring-highlight/30 ring-inset",
                   // Hovered state
                   isHovered && "bg-foreground/5 border-border/60",
                   // Selected state (highest priority)
-                  isSelected && "bg-blue-500/20 border-blue-400/50 ring-1 ring-blue-400/30"
+                  isSelected && "bg-highlight/30 border-highlight/50 ring-1 ring-highlight/40"
                 )}
                 onMouseEnter={() => setHoveredSlot(slotIdx)}
                 onMouseLeave={() => setHoveredSlot(null)}
@@ -225,12 +225,12 @@ export function VerticalTimeTable() {
                     <div
                       key={zone.id}
                       className={cn(
-                        "min-w-[140px] flex-1 whitespace-nowrap font-mono text-sm tabular-nums px-3 text-center",
+                        "min-w-[140px] flex-1 whitespace-nowrap font-mono text-base font-semibold tabular-nums px-3 text-center",
                         index > 0 && "border-l border-border/50",
                         dayDiff === "prev" &&
-                          "text-amber-700 dark:text-amber-400",
+                          "text-amber-day",
                         dayDiff === "next" &&
-                          "text-violet-700 dark:text-violet-400",
+                          "text-violet-day",
                         dayDiff === "same" && "text-foreground"
                       )}
                     >
