@@ -141,7 +141,7 @@ export function VerticalTimeTable() {
               <div
                 key={zone.id}
                 className={cn(
-                  "group relative min-w-[140px] flex-1 border-l border-border bg-background p-2 text-left",
+                  "group relative min-w-[140px] flex-1 border-l border-border bg-background px-3 py-2 text-left",
                   dragIndex === index && "opacity-50",
                   overIndex === index &&
                     dragIndex !== null &&
@@ -152,28 +152,26 @@ export function VerticalTimeTable() {
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragEnd={handleDragEnd}
               >
-                <div className="flex items-start justify-between gap-1">
-                  <div className="flex items-center gap-1.5">
-                    <GripVertical className="size-3 shrink-0 cursor-grab text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                    <div>
-                      <div className="text-sm font-semibold leading-tight">
-                        {zone.label}
-                      </div>
-                      <div className="mt-0.5 font-mono text-lg font-bold tabular-nums leading-tight" suppressHydrationWarning>
-                        {liveTime}
-                      </div>
-                      <div className="text-[10px] font-medium text-muted-foreground">
-                        {abbr} &middot; {headerDate}
-                      </div>
-                    </div>
-                  </div>
+                <div className="flex flex-col items-center text-center relative py-1">
+                  {/* Drag handle — top left */}
+                  <GripVertical className="absolute left-0 top-1 size-3 cursor-grab text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                  {/* Remove button — top right */}
                   <button
                     onClick={() => removeZone(zone.id)}
-                    className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+                    className="absolute right-0 top-1 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
                     aria-label={`Remove ${zone.label}`}
                   >
-                    <X className="size-3.5" />
+                    <X className="size-3" />
                   </button>
+                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    {zone.label}
+                  </div>
+                  <div className="font-mono text-2xl font-bold tabular-nums leading-tight mt-0.5" suppressHydrationWarning>
+                    {liveTime}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                    {abbr} &middot; {headerDate}
+                  </div>
                 </div>
               </div>
             );
@@ -231,7 +229,7 @@ export function VerticalTimeTable() {
                     <div
                       key={zone.id}
                       className={cn(
-                        "min-w-[140px] flex-1 whitespace-nowrap font-mono text-sm tabular-nums px-3",
+                        "min-w-[140px] flex-1 whitespace-nowrap font-mono text-sm tabular-nums px-3 text-center",
                         index > 0 && "border-l border-border/50",
                         dayDiff === "prev" &&
                           "text-amber-700 dark:text-amber-400",
