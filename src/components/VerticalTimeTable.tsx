@@ -141,7 +141,8 @@ export function VerticalTimeTable() {
               <div
                 key={zone.id}
                 className={cn(
-                  "group relative min-w-[140px] flex-1 border-l border-border bg-background px-3 py-2 text-left",
+                  "group relative min-w-[140px] flex-1 bg-background px-3 py-3",
+                  index > 0 && "border-l border-border",
                   dragIndex === index && "opacity-50",
                   overIndex === index &&
                     dragIndex !== null &&
