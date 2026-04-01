@@ -220,7 +220,7 @@ export function VerticalTimeTable() {
                     <td
                       key={zone.id}
                       className={cn(
-                        "whitespace-nowrap border-l border-border px-2 py-1.5 font-mono text-xs tabular-nums",
+                        "whitespace-nowrap border-l border-border px-3 py-0.5 font-mono text-sm tabular-nums",
                         dayDiff === "prev" &&
                           "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400",
                         dayDiff === "next" &&
@@ -228,12 +228,8 @@ export function VerticalTimeTable() {
                         dayDiff === "same" && "text-foreground"
                       )}
                     >
-                      <div>{formatSlotTime(zHour, zMinute)}</div>
-                      {cellDateLabel && (
-                        <div className="text-[10px] opacity-60">
-                          {cellDateLabel}
-                        </div>
-                      )}
+                      <span className="leading-none">{formatSlotTime(zHour, zMinute)}</span>
+                      {cellDateLabel && <span className="ml-1.5 text-[9px] opacity-50">{cellDateLabel}</span>}
                     </td>
                   );
                 })}
