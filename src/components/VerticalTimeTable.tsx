@@ -134,13 +134,14 @@ export function VerticalTimeTable() {
         <div className="sticky top-0 z-20 bg-background pb-2 pt-1">
           <div className="flex gap-2">
             {zones.map((zone, index) => {
+              const zoneKey = `${zone.id}-${index}`;
               const liveTime = formatCurrentTime(currentTime, zone.timezone);
               const abbr = getTimezoneAbbr(displayDate, zone.timezone);
               const headerDate = fmtTz(currentTime, zone.timezone, "MMM d");
 
               return (
                 <div
-                  key={zone.id}
+                  key={zoneKey}
                   className={cn(
                     "group relative min-w-[140px] flex-1 rounded-md border border-[#C4832A]/30 dark:border-border/60 bg-[#F5E6C8] dark:bg-card px-4 py-3 text-center",
                     dragIndex === index && "opacity-50",
@@ -203,6 +204,7 @@ export function VerticalTimeTable() {
               >
                 {/* One cell per timezone */}
                 {zones.map((zone, index) => {
+                  const zoneKey = `${zone.id}-${index}`;
                   const zoned = toZoned(utcForSlot, zone.timezone);
                   const zHour = zoned.getHours();
                   const zMinute = zoned.getMinutes();
@@ -223,7 +225,7 @@ export function VerticalTimeTable() {
 
                   return (
                     <div
-                      key={zone.id}
+                      key={zoneKey}
                       className={cn(
                         "min-w-[140px] flex-1 whitespace-nowrap font-mono text-base font-semibold tabular-nums px-3 text-center",
                         index > 0 && "border-l border-border/50",
