@@ -159,7 +159,7 @@ export function VerticalTimeTable() {
                   >
                     <X className="size-3" />
                   </button>
-                  <div className="text-sm font-heading font-semibold text-foreground">
+                  <div className="text-base font-heading font-medium tracking-wide text-foreground">
                     {zone.label}
                   </div>
                   <div className="font-mono text-2xl font-bold tabular-nums leading-tight mt-1" suppressHydrationWarning>

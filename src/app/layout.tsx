@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Serif } from "next/font/google";
+import { Inter, Shippori_Mincho } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -7,10 +7,10 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const notoSerif = Noto_Serif({
+const shipporiMincho = Shippori_Mincho({
   variable: "--font-heading",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${notoSerif.variable} dark h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} ${shipporiMincho.variable} dark h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans relative">
         {/* Cherry blossom decorative art — fixed, behind content */}
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-[0.07] dark:opacity-[0.04]" aria-hidden="true">

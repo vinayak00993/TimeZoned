@@ -114,7 +114,7 @@ function TimezoneApp() {
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Globe className="size-5 text-accent-warm" />
-            <h1 className="text-xl font-heading font-semibold tracking-tight">TimeZoned</h1>
+            <h1 className="text-2xl font-heading font-medium tracking-wide">TimeZoned</h1>
           </div>
           <DayNavigation />
           <div className="flex items-center gap-2">
