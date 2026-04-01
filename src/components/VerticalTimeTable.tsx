@@ -225,7 +225,7 @@ export function VerticalTimeTable() {
                     <div
                       key={zone.id}
                       className={cn(
-                        "min-w-[140px] flex-1 whitespace-nowrap font-mono text-sm tabular-nums px-3 text-center",
+                        "min-w-[140px] flex-1 whitespace-nowrap font-mono text-base font-semibold tabular-nums px-3 text-center",
                         index > 0 && "border-l border-border/50",
                         dayDiff === "prev" &&
                           "text-amber-day",
