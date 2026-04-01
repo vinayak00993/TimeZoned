@@ -33,9 +33,11 @@ export function VerticalTimeTable() {
     tick,
   } = useTimezoneStore();
 
-  const currentRowRef = useRef<HTMLTableRowElement>(null);
+  const currentRowRef = useRef<HTMLDivElement>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
+  const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
 
   // Tick every 60s
   useEffect(() => {
@@ -127,74 +129,83 @@ export function VerticalTimeTable() {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse">
+      <div className="mx-auto max-w-2xl">
         {/* Sticky header */}
-        <thead className="sticky top-0 z-20">
-          <tr className="bg-background">
-            {zones.map((zone, index) => {
-              const liveTime = formatCurrentTime(currentTime, zone.timezone);
-              const abbr = getTimezoneAbbr(displayDate, zone.timezone);
-              const headerDate = fmtTz(currentTime, zone.timezone, "MMM d");
+        <div className="sticky top-0 z-20 flex bg-background border-b border-border">
+          {zones.map((zone, index) => {
+            const liveTime = formatCurrentTime(currentTime, zone.timezone);
+            const abbr = getTimezoneAbbr(displayDate, zone.timezone);
+            const headerDate = fmtTz(currentTime, zone.timezone, "MMM d");
 
-              return (
-                <th
-                  key={zone.id}
-                  className={cn(
-                    "group relative min-w-[8rem] border-b border-l border-border bg-background p-2 text-left",
-                    dragIndex === index && "opacity-50",
-                    overIndex === index &&
-                      dragIndex !== null &&
-                      "border-l-2 border-l-blue-500"
-                  )}
-                  draggable
-                  onDragStart={() => handleDragStart(index)}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDragEnd={handleDragEnd}
-                >
-                  <div className="flex items-start justify-between gap-1">
-                    <div className="flex items-center gap-1.5">
-                      <GripVertical className="size-3 shrink-0 cursor-grab text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                      <div>
-                        <div className="text-sm font-semibold leading-tight">
-                          {zone.label}
-                        </div>
-                        <div className="mt-0.5 font-mono text-lg font-bold tabular-nums leading-tight">
-                          {liveTime}
-                        </div>
-                        <div className="text-[10px] font-medium text-muted-foreground">
-                          {abbr} &middot; {headerDate}
-                        </div>
+            return (
+              <div
+                key={zone.id}
+                className={cn(
+                  "group relative min-w-[140px] flex-1 border-l border-border bg-background p-2 text-left",
+                  dragIndex === index && "opacity-50",
+                  overIndex === index &&
+                    dragIndex !== null &&
+                    "border-l-2 border-l-blue-500"
+                )}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+              >
+                <div className="flex items-start justify-between gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <GripVertical className="size-3 shrink-0 cursor-grab text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div>
+                      <div className="text-sm font-semibold leading-tight">
+                        {zone.label}
+                      </div>
+                      <div className="mt-0.5 font-mono text-lg font-bold tabular-nums leading-tight">
+                        {liveTime}
+                      </div>
+                      <div className="text-[10px] font-medium text-muted-foreground">
+                        {abbr} &middot; {headerDate}
                       </div>
                     </div>
-                    <button
-                      onClick={() => removeZone(zone.id)}
-                      className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
-                      aria-label={`Remove ${zone.label}`}
-                    >
-                      <X className="size-3.5" />
-                    </button>
                   </div>
-                </th>
-              );
-            })}
-          </tr>
-        </thead>
+                  <button
+                    onClick={() => removeZone(zone.id)}
+                    className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+                    aria-label={`Remove ${zone.label}`}
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
-        <tbody>
+        {/* Slot rows */}
+        <div className="pt-1">
           {SLOTS.map((slot, slotIdx) => {
             const utcForSlot = getUtcForSlot(slot.hour, slot.minute);
             const isCurrentRow = slotIdx === currentSlotIndex;
-            const isHourBoundary = slot.minute === 0;
+            const isSelected = selectedSlot === slotIdx;
+            const isHovered = hoveredSlot === slotIdx && !isSelected;
 
             return (
-              <tr
+              <div
                 key={slotIdx}
                 ref={isCurrentRow ? currentRowRef : undefined}
                 className={cn(
-                  "transition-colors",
-                  isHourBoundary && "border-t border-border/50",
-                  isCurrentRow && "bg-white/5 ring-1 ring-white/10 ring-inset"
+                  "flex items-center gap-0 rounded-md border mb-1 px-3 py-1.5 transition-colors cursor-pointer",
+                  // Default state
+                  "border-border/40",
+                  // Current time row (lowest priority highlight)
+                  isCurrentRow && !isSelected && !isHovered && "bg-white/5 ring-1 ring-white/10 ring-inset",
+                  // Hovered state
+                  isHovered && "bg-foreground/5 border-border/60",
+                  // Selected state (highest priority)
+                  isSelected && "bg-blue-500/20 border-blue-400/50 ring-1 ring-blue-400/30"
                 )}
+                onMouseEnter={() => setHoveredSlot(slotIdx)}
+                onMouseLeave={() => setHoveredSlot(null)}
+                onClick={() => setSelectedSlot(selectedSlot === slotIdx ? null : slotIdx)}
               >
                 {/* One cell per timezone */}
                 {zones.map((zone) => {
@@ -217,27 +228,27 @@ export function VerticalTimeTable() {
                       : null;
 
                   return (
-                    <td
+                    <div
                       key={zone.id}
                       className={cn(
-                        "whitespace-nowrap border-l border-border px-3 py-0.5 font-mono text-sm tabular-nums",
+                        "min-w-[140px] flex-1 whitespace-nowrap font-mono text-sm tabular-nums",
                         dayDiff === "prev" &&
-                          "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400",
+                          "text-amber-700 dark:text-amber-400",
                         dayDiff === "next" &&
-                          "bg-violet-500/10 text-violet-700 dark:bg-violet-400/10 dark:text-violet-400",
+                          "text-violet-700 dark:text-violet-400",
                         dayDiff === "same" && "text-foreground"
                       )}
                     >
                       <span className="leading-none">{formatSlotTime(zHour, zMinute)}</span>
                       {cellDateLabel && <span className="ml-1.5 text-[9px] opacity-50">{cellDateLabel}</span>}
-                    </td>
+                    </div>
                   );
                 })}
-              </tr>
+              </div>
             );
           })}
-        </tbody>
-      </table>
+        </div>
+      </div>
     </div>
   );
 }
