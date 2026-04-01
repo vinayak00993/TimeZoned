@@ -24,10 +24,10 @@ export function AddTimezone() {
       )
     : cities;
 
-  // Allow multiple cities sharing a timezone (e.g. Chennai + Mumbai both Asia/Kolkata)
-  // Only deduplicate by exact timezone+name match
+  // Only prevent adding the exact same city twice (same name) — 
+  // cities sharing a timezone (Houston/Dallas/Chicago) are all allowed
   const available = filtered.filter(
-    (c) => !zones.some((z) => z.timezone === c.timezone && z.label === c.name)
+    (c) => !zones.some((z) => z.label === c.name)
   );
 
   // Reset active index when results change
