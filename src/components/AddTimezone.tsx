@@ -63,7 +63,7 @@ export function AddTimezone() {
 
   function handleSelect(city: City) {
     addZone({
-      id: `${city.timezone}-${city.name}`.toLowerCase().replace(/[\s/]/g, "-"),
+      id: `${city.timezone}-${city.name}-${Date.now()}`.toLowerCase().replace(/[\s/]/g, "-"),
       timezone: city.timezone,
       label: city.name,
       country: city.country,
