@@ -7,8 +7,6 @@ import {
   getDisplayDate,
   getTimezoneAbbr,
   formatCurrentTime,
-  isBusinessHour,
-  isSleepingHour,
 } from "@/lib/time-utils";
 import { cn } from "@/lib/utils";
 import { formatInTimeZone as fmtTz, toZonedTime as toZoned } from "date-fns-tz";
@@ -133,13 +131,10 @@ export function VerticalTimeTable() {
         {/* Sticky header */}
         <thead className="sticky top-0 z-20">
           <tr className="bg-background">
-            {/* Empty corner cell for the time column */}
-            <th className="w-24 min-w-[6rem] border-b border-border bg-background p-2 text-left text-xs font-medium text-muted-foreground md:w-28">
-              Time
-            </th>
             {zones.map((zone, index) => {
               const liveTime = formatCurrentTime(currentTime, zone.timezone);
               const abbr = getTimezoneAbbr(displayDate, zone.timezone);
+              const headerDate = fmtTz(currentTime, zone.timezone, "MMM d");
 
               return (
                 <th
@@ -167,7 +162,7 @@ export function VerticalTimeTable() {
                           {liveTime}
                         </div>
                         <div className="text-[10px] font-medium text-muted-foreground">
-                          {abbr}
+                          {abbr} &middot; {headerDate}
                         </div>
                       </div>
                     </div>
@@ -191,10 +186,6 @@ export function VerticalTimeTable() {
             const isCurrentRow = slotIdx === currentSlotIndex;
             const isHourBoundary = slot.minute === 0;
 
-            // Determine row color based on the slot hour (reference tz)
-            const sleeping = isSleepingHour(slot.hour);
-            const business = isBusinessHour(slot.hour);
-
             return (
               <tr
                 key={slotIdx}
@@ -202,26 +193,9 @@ export function VerticalTimeTable() {
                 className={cn(
                   "transition-colors",
                   isHourBoundary && "border-t border-border/50",
-                  isCurrentRow &&
-                    "!bg-blue-500/15 dark:!bg-blue-400/15 ring-1 ring-blue-500/30 ring-inset",
-                  !isCurrentRow && sleeping && "bg-indigo-500/5 dark:bg-indigo-400/5",
-                  !isCurrentRow && business && "bg-emerald-500/5 dark:bg-emerald-400/5",
-                  !isCurrentRow && !sleeping && !business && "bg-transparent"
+                  isCurrentRow && "bg-white/5 ring-1 ring-white/10 ring-inset"
                 )}
               >
-                {/* Time label column */}
-                <td
-                  className={cn(
-                    "whitespace-nowrap px-2 py-1.5 font-mono text-xs tabular-nums",
-                    isCurrentRow
-                      ? "font-bold text-blue-600 dark:text-blue-400"
-                      : "text-muted-foreground",
-                    !isHourBoundary && "text-muted-foreground/60"
-                  )}
-                >
-                  {formatSlotTime(slot.hour, slot.minute)}
-                </td>
-
                 {/* One cell per timezone */}
                 {zones.map((zone) => {
                   const zoned = toZoned(utcForSlot, zone.timezone);
@@ -230,34 +204,35 @@ export function VerticalTimeTable() {
                   const zoneDateStr = fmtTz(utcForSlot, zone.timezone, "yyyy-MM-dd");
 
                   // Detect date difference from reference
-                  let dateBadge: string | null = null;
-                  if (zoneDateStr !== refDateStr) {
-                    dateBadge =
-                      zoneDateStr > refDateStr ? "+1 day" : "\u20131 day";
+                  let dayDiff: "prev" | "same" | "next" = "same";
+                  if (zoneDateStr < refDateStr) {
+                    dayDiff = "prev";
+                  } else if (zoneDateStr > refDateStr) {
+                    dayDiff = "next";
                   }
 
-                  const cellSleeping = isSleepingHour(zHour);
-                  const cellBusiness = isBusinessHour(zHour);
+                  const cellDateLabel =
+                    dayDiff !== "same"
+                      ? fmtTz(utcForSlot, zone.timezone, "MMM d")
+                      : null;
 
                   return (
                     <td
                       key={zone.id}
                       className={cn(
-                        "whitespace-nowrap border-l border-border/30 px-2 py-1.5 font-mono text-xs tabular-nums",
-                        isCurrentRow
-                          ? "font-semibold text-blue-600 dark:text-blue-400"
-                          : cellSleeping
-                            ? "text-muted-foreground/50"
-                            : cellBusiness
-                              ? "text-foreground"
-                              : "text-muted-foreground"
+                        "whitespace-nowrap border-l border-border px-2 py-1.5 font-mono text-xs tabular-nums",
+                        dayDiff === "prev" &&
+                          "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400",
+                        dayDiff === "next" &&
+                          "bg-violet-500/10 text-violet-700 dark:bg-violet-400/10 dark:text-violet-400",
+                        dayDiff === "same" && "text-foreground"
                       )}
                     >
-                      <span>{formatSlotTime(zHour, zMinute)}</span>
-                      {dateBadge && (
-                        <span className="ml-1.5 rounded bg-accent px-1 py-0.5 text-[9px] font-medium text-muted-foreground">
-                          {dateBadge}
-                        </span>
+                      <div>{formatSlotTime(zHour, zMinute)}</div>
+                      {cellDateLabel && (
+                        <div className="text-[10px] opacity-60">
+                          {cellDateLabel}
+                        </div>
                       )}
                     </td>
                   );
