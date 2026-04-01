@@ -48,9 +48,16 @@ function TimezoneApp() {
 
   useEffect(() => {
     const tzParam = zones.map((z) => z.timezone).join(",");
-    const url = new URL(window.location.href);
-    url.searchParams.set("tz", tzParam);
-    window.history.replaceState({}, "", url.toString());
+    // Debounce replaceState to avoid "called too frequently" errors
+    const timer = setTimeout(() => {
+      const url = new URL(window.location.href);
+      const current = url.searchParams.get("tz");
+      if (current !== tzParam) {
+        url.searchParams.set("tz", tzParam);
+        window.history.replaceState({}, "", url.toString());
+      }
+    }, 300);
+    return () => clearTimeout(timer);
   }, [zones]);
 
   return (

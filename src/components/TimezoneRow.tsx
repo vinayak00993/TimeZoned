@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { X, GripVertical } from "lucide-react";
 import { useTimezoneStore, type TimezoneEntry } from "@/store/timezone-store";
 import {
@@ -33,10 +34,11 @@ export function TimezoneRow({
 
   const currentHour = getCurrentHourInTimezone(currentTime, zone.timezone);
   const currentMinute = getCurrentMinuteInTimezone(currentTime, zone.timezone);
-  const localDate = getDateInTimezone(
-    currentTime,
-    Intl.DateTimeFormat().resolvedOptions().timeZone
-  );
+  const [localTimezone, setLocalTimezone] = useState("UTC");
+  useEffect(() => {
+    setLocalTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  }, []);
+  const localDate = getDateInTimezone(currentTime, localTimezone);
   const zoneDate = getDateInTimezone(currentTime, zone.timezone);
 
   // Calculate offset from first zone in whole hours
