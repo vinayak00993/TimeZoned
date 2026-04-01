@@ -163,7 +163,7 @@ export function VerticalTimeTable() {
                   <div className="text-base font-heading font-medium tracking-wide text-foreground">
                     {zone.label}
                   </div>
-                  <div className={`font-mono font-bold tabular-nums leading-tight mt-1 ${zones.length >= 4 ? "text-lg" : zones.length === 3 ? "text-xl" : "text-2xl"}`} suppressHydrationWarning>
+                  <div className="font-mono text-xl font-bold tabular-nums leading-tight mt-1" suppressHydrationWarning>
                     {liveTime}
                   </div>
                   <div className="text-[11px] text-muted-foreground mt-0.5">
