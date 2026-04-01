@@ -91,7 +91,7 @@ function TimezoneApp() {
     }
 
     const storedTheme = localStorage.getItem("timezoned-theme");
-    const theme = storedTheme === "light" ? "light" : "dark";
+    const theme = storedTheme === "dark" ? "dark" : "light";
     setTheme(theme);
   }, [searchParams, setZones, setTheme]);
 

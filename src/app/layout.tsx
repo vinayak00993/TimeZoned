@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${shipporiMincho.variable} dark h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} ${shipporiMincho.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans relative">
         {/* Cherry blossom decorative art — fixed, behind content */}
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-[0.07] dark:opacity-[0.04]" aria-hidden="true">
