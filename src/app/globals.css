@@ -142,22 +142,41 @@
   html {
     @apply font-sans;
   }
-  /* Canvas texture — large-scale organic turbulence, no grid pattern */
+  /* Orange-peel / stipple canvas texture via fine + coarse noise layered */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     z-index: 9999;
     pointer-events: none;
-    opacity: 0.12;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='canvas'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.02 0.025' numOctaves='6' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23canvas)'/%3E%3C/svg%3E");
+    opacity: 1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='stipple' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.055 0.06' numOctaves='5' seed='8' stitchTiles='stitch' result='noise'/%3E%3CfeColorMatrix type='saturate' values='0' result='grey'/%3E%3CfeComponentTransfer result='bright'%3E%3CfeFuncR type='linear' slope='0.18' intercept='0.82'/%3E%3CfeFuncG type='linear' slope='0.18' intercept='0.82'/%3E%3CfeFuncB type='linear' slope='0.18' intercept='0.82'/%3E%3C/feComponentTransfer%3E%3CfeBlend in='SourceGraphic' in2='bright' mode='multiply'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23stipple)'/%3E%3C/svg%3E");
     background-repeat: repeat;
-    background-size: 600px 600px;
+    background-size: 512px 512px;
+    mix-blend-mode: multiply;
   }
 
-  /* Subtle warm vignette — depth at edges like a stretched canvas */
+  /* Raking light — warm light source from top-left, shadow bottom-right */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse 140% 120% at 15% 10%,
+      rgba(255, 252, 230, 0.22) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 100% 100% at 90% 95%,
+      rgba(80, 50, 10, 0.08) 0%,
+      transparent 60%
+    );
+  }
+
+  /* Warm canvas vignette */
   body {
-    box-shadow: inset 0 0 200px rgba(90, 60, 10, 0.07);
+    box-shadow: inset 0 0 180px rgba(90, 60, 10, 0.09);
   }
 }
