@@ -12,6 +12,7 @@ interface TimezoneState {
   hoveredHourIndex: number | null;
   theme: "dark" | "light";
   currentTime: Date;
+  dayOffset: number;
   setZones: (zones: TimezoneEntry[]) => void;
   addZone: (zone: TimezoneEntry) => void;
   removeZone: (id: string) => void;
@@ -20,6 +21,9 @@ interface TimezoneState {
   toggleTheme: () => void;
   setTheme: (theme: "dark" | "light") => void;
   tick: () => void;
+  incrementDay: () => void;
+  decrementDay: () => void;
+  resetDay: () => void;
 }
 
 const DEFAULT_ZONES: TimezoneEntry[] = [
@@ -74,6 +78,7 @@ export const useTimezoneStore = create<TimezoneState>((set) => ({
   hoveredHourIndex: null,
   theme: "dark",
   currentTime: new Date(),
+  dayOffset: 0,
 
   setZones: (zones) => {
     saveZones(zones);
@@ -124,4 +129,8 @@ export const useTimezoneStore = create<TimezoneState>((set) => ({
   },
 
   tick: () => set({ currentTime: new Date() }),
+
+  incrementDay: () => set((state) => ({ dayOffset: state.dayOffset + 1 })),
+  decrementDay: () => set((state) => ({ dayOffset: state.dayOffset - 1 })),
+  resetDay: () => set({ dayOffset: 0 }),
 }));
