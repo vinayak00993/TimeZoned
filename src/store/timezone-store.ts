@@ -16,6 +16,7 @@ interface TimezoneState {
   setZones: (zones: TimezoneEntry[]) => void;
   addZone: (zone: TimezoneEntry) => void;
   removeZone: (id: string) => void;
+  replaceZone: (id: string, zone: TimezoneEntry) => void;
   reorderZones: (fromIndex: number, toIndex: number) => void;
   setHoveredHourIndex: (index: number | null) => void;
   toggleTheme: () => void;
@@ -26,20 +27,7 @@ interface TimezoneState {
   resetDay: () => void;
 }
 
-const DEFAULT_ZONES: TimezoneEntry[] = [
-  {
-    id: "america-los_angeles",
-    timezone: "America/Los_Angeles",
-    label: "Los Angeles",
-    country: "US",
-  },
-  {
-    id: "asia-kolkata",
-    timezone: "Asia/Kolkata",
-    label: "Mumbai",
-    country: "IN",
-  },
-];
+const DEFAULT_ZONES: TimezoneEntry[] = [];
 
 function loadZones(): TimezoneEntry[] | null {
   if (typeof window === "undefined") return null;
@@ -95,6 +83,13 @@ export const useTimezoneStore = create<TimezoneState>((set) => ({
   removeZone: (id) =>
     set((state) => {
       const newZones = state.zones.filter((z) => z.id !== id);
+      saveZones(newZones);
+      return { zones: newZones };
+    }),
+
+  replaceZone: (id, zone) =>
+    set((state) => {
+      const newZones = state.zones.map((z) => (z.id === id ? zone : z));
       saveZones(newZones);
       return { zones: newZones };
     }),
