@@ -86,15 +86,33 @@ function TimezoneApp() {
         setZones(zonesFromUrl);
       }
     } else {
+      let loaded = false;
       try {
         const stored = localStorage.getItem("timezoned-zones");
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
             setZones(parsed);
+            loaded = true;
           }
         }
       } catch {}
+
+      if (!loaded) {
+        // Seed with the user's local timezone so the first view is relevant to them
+        const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const match = cities.find((c) => c.timezone === localTz);
+        const label =
+          match?.name || localTz.split("/").pop()?.replace(/_/g, " ") || localTz;
+        setZones([
+          {
+            id: `${localTz}-${label}-${Date.now()}`.toLowerCase().replace(/[\s/]/g, "-"),
+            timezone: localTz,
+            label,
+            country: match?.country || "",
+          },
+        ]);
+      }
     }
 
     const storedTheme = localStorage.getItem("timezoned-theme");
