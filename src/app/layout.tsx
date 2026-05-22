@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Shippori_Mincho } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
+import { Analytics } from "@/components/Analytics";
+import { popularPairs } from "@/lib/compare";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -13,9 +17,63 @@ const shipporiMincho = Shippori_Mincho({
   weight: ["400", "500", "600", "700"],
 });
 
+const TITLE = "TimeZoned — Compare Time Zones & Plan Meetings Worldwide";
+
 export const metadata: Metadata = {
-  title: "TimeZoned — Timezone Comparison",
-  description: "Compare timezones side-by-side on a 24-hour timeline",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: TITLE,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "time zone converter",
+    "timezone comparison",
+    "time difference",
+    "world clock",
+    "meeting planner",
+    "time zone meeting planner",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: TITLE,
+    description: SITE_DESCRIPTION,
+    url: "/",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  verification: process.env.GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+    : undefined,
+};
+
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: SITE_NAME,
+  url: SITE_URL,
+  description: SITE_DESCRIPTION,
+  applicationCategory: "UtilityApplication",
+  operatingSystem: "Web",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
 };
 
 export default function RootLayout({
@@ -23,6 +81,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const popular = popularPairs();
+  const year = new Date().getFullYear();
+
   return (
     <html lang="en" className={`${inter.variable} ${shipporiMincho.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans relative">
@@ -80,7 +141,52 @@ export default function RootLayout({
             <ellipse cx="400" cy="350" rx="4" ry="2.5" fill="currentColor" transform="rotate(40 400 350)"/>
           </svg>
         </div>
-        <div className="relative z-10 flex min-h-full flex-col">{children}</div>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(siteJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
+        <div className="relative z-10 flex min-h-full flex-col">
+          {children}
+          <footer className="border-t border-border px-4 py-8 md:px-6">
+            <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:justify-between">
+              <div className="max-w-xs">
+                <span className="font-heading text-lg font-medium tracking-wide">
+                  {SITE_NAME}
+                </span>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {SITE_DESCRIPTION}
+                </p>
+              </div>
+              <nav aria-label="Popular time zone conversions" className="text-sm">
+                <h2 className="mb-2 font-medium">Popular conversions</h2>
+                <ul className="grid grid-cols-2 gap-x-6 gap-y-1 text-muted-foreground">
+                  {popular.slice(0, 8).map((p) => (
+                    <li key={`${p.from.slug}-${p.to.slug}`}>
+                      <Link
+                        href={`/compare/${p.from.slug}/${p.to.slug}`}
+                        className="hover:text-accent-warm hover:underline"
+                      >
+                        {p.from.name} to {p.to.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/compare"
+                  className="mt-3 inline-block text-accent-warm hover:underline"
+                >
+                  All time zone conversions →
+                </Link>
+              </nav>
+            </div>
+            <p className="mx-auto mt-6 max-w-7xl text-xs text-muted-foreground">
+              © {year} {SITE_NAME}
+            </p>
+          </footer>
+        </div>
+        <Analytics />
       </body>
     </html>
   );
