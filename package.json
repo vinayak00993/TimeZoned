@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "seo:indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",

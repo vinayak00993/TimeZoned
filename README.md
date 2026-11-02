@@ -155,7 +155,22 @@ src/
 
 **Branch rules:** Never push directly to `main`. Always a feature branch + PR.
 
-After deploying, submit `https://www.gettimezoned.com/sitemap.xml` in Google Search Console and Bing Webmaster Tools so the new pages are crawled promptly.
+### Getting indexed
+
+The sitemap only exists once this code is live, so do this after the deploy.
+
+1. **Verification tokens.** In Railway, add two variables and redeploy:
+   - `GOOGLE_SITE_VERIFICATION` — the token from Search Console's "HTML tag" method (just the `content` value).
+   - `BING_SITE_VERIFICATION` — the token from Bing Webmaster Tools' "HTML Meta Tag" method.
+   The layout renders them as `google-site-verification` and `msvalidate.01` meta tags.
+2. **Google.** In [Search Console](https://search.google.com/search-console), add a URL-prefix property for `https://www.gettimezoned.com/`, verify with the HTML tag, then open *Sitemaps* and submit `sitemap.xml`. Use *URL Inspection → Request indexing* on the home page and a few pair pages to get the first crawl started.
+3. **Bing (and Yandex, Naver, Seznam, Yep) via IndexNow.** Generate a key with `openssl rand -hex 16`, set it as `INDEXNOW_KEY` in Railway, redeploy, then run:
+
+   ```bash
+   INDEXNOW_KEY=<key> npm run seo:indexnow
+   ```
+
+   The script reads the live sitemap, confirms `/indexnow/<key>.txt` is being served, and submits every URL. Run it again whenever pages are added. Bing Webmaster Tools will also accept the sitemap directly under *Sitemaps*; importing the verified Search Console property is the fastest way to set that up.
 
 ---
 

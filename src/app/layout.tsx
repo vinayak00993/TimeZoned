@@ -45,6 +45,12 @@ export const metadata: Metadata = {
     title: `${SITE_NAME} — Time Zone Converter & Meeting Planner`,
     description: SITE_DESCRIPTION,
   },
+  // Paste the tokens from Search Console / Bing Webmaster Tools into the
+  // GOOGLE_SITE_VERIFICATION and BING_SITE_VERIFICATION environment variables.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    other: process.env.BING_SITE_VERIFICATION ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION } : undefined,
+  },
   robots: {
     index: true,
     follow: true,
