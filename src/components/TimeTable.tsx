@@ -26,6 +26,8 @@ interface TimeTableProps {
   onDragChange?: (dragging: boolean) => void;
   /** Rendered between the pinned headers and the first row. */
   afterHeader?: React.ReactNode;
+  /** Slot indices whose hours work for every city; drawn as a band across the row. */
+  goodSlots: Set<number>;
 }
 
 function range(a: number, b: number): Selection {
@@ -47,6 +49,7 @@ export function TimeTable({
   onSelectionChange,
   onDragChange,
   afterHeader,
+  goodSlots,
 }: TimeTableProps) {
   const reorderZones = useTimezoneStore((s) => s.reorderZones);
   const [drag, setDrag] = useState<{ from: number | null; over: number | null }>({ from: null, over: null });
@@ -183,6 +186,7 @@ export function TimeTable({
           const isSelected = !!selection && i >= selection.start && i <= selection.end;
           const isSelStart = isSelected && selection!.start === i;
           const isSelEnd = isSelected && selection!.end === i;
+          const isGood = goodSlots.has(i);
 
           return (
             <div
@@ -197,6 +201,7 @@ export function TimeTable({
                 "flex cursor-pointer items-stretch gap-1 outline-none transition-[background-color,box-shadow] duration-100 scroll-mt-32 scroll-mb-44 sm:gap-2",
                 "hover:bg-foreground/5 focus-visible:ring-2 focus-visible:ring-ring",
                 !isSelected && "rounded-md",
+                isGood && !isSelected && "bg-shade-work",
                 isCurrent && !isSelected && "ring-1 ring-inset ring-highlight",
                 // A selected run is drawn as one block: side rails on every row, caps on the ends.
                 isSelected && "bg-accent-warm/20",
@@ -221,10 +226,9 @@ export function TimeTable({
                     key={zone.id}
                     role="gridcell"
                     className={cn(
-                      "my-px flex min-w-0 flex-1 items-center justify-center whitespace-nowrap rounded-sm px-1 py-1 text-center text-xs tabular-nums sm:px-3 sm:py-1.5 sm:text-sm",
-                      part === "work" && "bg-shade-work font-medium",
-                      part === "edge" && "bg-shade-edge",
-                      part === "sleep" && "bg-shade-sleep text-muted-foreground"
+                      "flex min-w-0 flex-1 items-center justify-center whitespace-nowrap px-1 py-1 text-center text-xs tabular-nums sm:px-3 sm:py-1.5 sm:text-sm",
+                      part === "work" && "font-medium",
+                      part === "sleep" && "text-muted-foreground/70"
                     )}
                   >
                     <span className="leading-none">{formatSlotTime(hour, minute)}</span>
