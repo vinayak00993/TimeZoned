@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { featuredPairs, pairSlug } from "@/lib/slugs";
+import { Logo } from "@/components/Logo";
 
 export function SiteFooter() {
   const pairs = featuredPairs().slice(0, 12);
@@ -7,7 +8,7 @@ export function SiteFooter() {
     <footer className="border-t border-border px-4 py-8 text-sm text-muted-foreground md:px-6">
       <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3">
         <div className="space-y-2">
-          <p className="font-heading text-base font-medium text-foreground">TimeZoned</p>
+          <p className="flex items-center gap-2 font-heading text-base font-medium text-foreground"><Logo className="size-5" /> TimeZoned</p>
           <p>
             Line up cities hour by hour, see who&apos;s at work, and copy a meeting time everyone can read in their
             own clock.

@@ -3,12 +3,14 @@ import { parseTimeSlug } from "@/lib/slugs";
 import { formatDurationMinutes, formatUtcOffset, offsetDifferenceMinutes } from "@/lib/time-utils";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { SITE_NAME } from "@/lib/site";
+import { logoDataUri } from "@/lib/logo";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const logo = await logoDataUri();
   const route = parseTimeSlug(slug);
   const now = new Date();
 
@@ -56,7 +58,8 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 32, color: "#7A5C33" }}>
-          <div style={{ width: 24, height: 24, borderRadius: 12, background: "#B5542B" }} />
+          { }
+          <img src={logo} width={44} height={44} alt="" />
           {SITE_NAME}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

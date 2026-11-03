@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- TimeZoned mark: a clock rim, the face split by a horizon. Day on top with a sun, night below with a moon. -->
+  <circle cx="32" cy="32" r="27" fill="#FFF0CC"/>
+  <path d="M5.07 34 C 14 26, 22 42, 32 34 S 50 26, 58.93 34 A 27 27 0 0 1 5.07 34 Z" fill="#3B2A12"/>
+  <g transform="translate(22 20)" stroke="#B5542B" stroke-width="2.2" stroke-linecap="round">
+    <path d="M0 -7.5 V -10.5"/>
+    <path d="M0 -7.5 V -10.5" transform="rotate(45)"/>
+    <path d="M0 -7.5 V -10.5" transform="rotate(90)"/>
+    <path d="M0 -7.5 V -10.5" transform="rotate(135)"/>
+    <path d="M0 -7.5 V -10.5" transform="rotate(225)"/>
+    <path d="M0 -7.5 V -10.5" transform="rotate(270)"/>
+    <path d="M0 -7.5 V -10.5" transform="rotate(315)"/>
+  </g>
+  <circle cx="22" cy="20" r="5" fill="#B5542B"/>
+  <circle cx="43" cy="46" r="7" fill="#FFE5AB"/>
+  <circle cx="46.2" cy="43.2" r="6" fill="#3B2A12"/>
+  <circle cx="32" cy="32" r="27" stroke="#B5542B" stroke-width="3"/>
+  <g stroke="#B5542B" stroke-width="2.5" stroke-linecap="round">
+    <path d="M32 7.5 V 11"/>
+    <path d="M32 53 V 56.5"/>
+    <path d="M7.5 32 H 11"/>
+    <path d="M53 32 H 56.5"/>
+  </g>
+</svg>
