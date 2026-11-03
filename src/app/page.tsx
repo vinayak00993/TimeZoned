@@ -1,175 +1,36 @@
-"use client";
+import type { Metadata } from "next";
+import { TimezoneApp } from "@/components/TimezoneApp";
+import { jsonLd, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
-import { Suspense, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { useTimezoneStore } from "@/store/timezone-store";
-import { VerticalTimeTable } from "@/components/VerticalTimeTable";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { AddTimezone } from "@/components/AddTimezone";
-import { cities } from "@/data/cities";
-import { Globe, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { getDisplayDate, formatDisplayDate } from "@/lib/time-utils";
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
-function DayNavigation() {
-  const { dayOffset, incrementDay, decrementDay, resetDay, currentTime, zones } =
-    useTimezoneStore();
-
-  // Use first zone or local timezone for date display
-  const displayTz =
-    zones.length > 0
-      ? zones[0].timezone
-      : Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const displayDate = getDisplayDate(currentTime, dayOffset);
-  const dateLabel = formatDisplayDate(displayDate, displayTz);
-
-  return (
-    <div className="flex items-center gap-1.5">
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        onClick={decrementDay}
-        aria-label="Previous day"
-      >
-        <ChevronLeft className="size-4" />
-      </Button>
-      <button
-        onClick={resetDay}
-        className="rounded-md px-2 py-1 text-sm font-medium tabular-nums hover:bg-accent transition-colors"
-        title="Go to today"
-      >
-        {dateLabel}
-        {dayOffset !== 0 && (
-          <span className="ml-1.5 text-xs text-muted-foreground">
-            ({dayOffset > 0 ? "+" : ""}
-            {dayOffset}d)
-          </span>
-        )}
-      </button>
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        onClick={incrementDay}
-        aria-label="Next day"
-      >
-        <ChevronRight className="size-4" />
-      </Button>
-    </div>
-  );
-}
-
-function TimezoneApp() {
-  const { setZones, zones, setTheme } = useTimezoneStore();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const tzParam = searchParams.get("tz");
-    if (tzParam) {
-      const tzList = tzParam.split(",").filter(Boolean);
-      const zonesFromUrl = tzList.map((entry) => {
-        // Support both "timezone:CityName" (new) and "timezone" (legacy)
-        const colonIdx = entry.indexOf(":");
-        const tz = colonIdx > -1 ? entry.slice(0, colonIdx) : entry;
-        const nameHint = colonIdx > -1 ? decodeURIComponent(entry.slice(colonIdx + 1)) : null;
-        const city = nameHint
-          ? cities.find((c) => c.timezone === tz && c.name === nameHint) || cities.find((c) => c.timezone === tz)
-          : cities.find((c) => c.timezone === tz);
-        const label = nameHint || city?.name || tz.split("/").pop()?.replace(/_/g, " ") || tz;
-        return {
-          id: `${tz}-${label}-${Date.now()}`.toLowerCase().replace(/[\s/]/g, "-"),
-          timezone: tz,
-          label,
-          country: city?.country || "",
-        };
-      });
-      if (zonesFromUrl.length > 0) {
-        setZones(zonesFromUrl);
-      }
-    } else {
-      let loaded = false;
-      try {
-        const stored = localStorage.getItem("timezoned-zones");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setZones(parsed);
-            loaded = true;
-          }
-        }
-      } catch {}
-
-      if (!loaded) {
-        // Seed with the user's local timezone so the first view is relevant to them
-        const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const match = cities.find((c) => c.timezone === localTz);
-        const label =
-          match?.name || localTz.split("/").pop()?.replace(/_/g, " ") || localTz;
-        setZones([
-          {
-            id: `${localTz}-${label}-${Date.now()}`.toLowerCase().replace(/[\s/]/g, "-"),
-            timezone: localTz,
-            label,
-            country: match?.country || "",
-          },
-        ]);
-      }
-    }
-
-    const storedTheme = localStorage.getItem("timezoned-theme");
-    const theme = storedTheme === "dark" ? "dark" : "light";
-    setTheme(theme);
-  }, [searchParams, setZones, setTheme]);
-
-  useEffect(() => {
-    // Encode as "timezone:CityName" so URLs preserve city identity
-    const tzParam = zones.map((z) => `${z.timezone}:${encodeURIComponent(z.label)}`).join(",");
-    const timer = setTimeout(() => {
-      const url = new URL(window.location.href);
-      const current = url.searchParams.get("tz");
-      if (current !== tzParam) {
-        url.searchParams.set("tz", tzParam);
-        window.history.replaceState({}, "", url.toString());
-      }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [zones]);
-
-  return (
-    <div className="flex min-h-screen flex-col">
-      <header className="border-b border-border px-4 py-3 md:px-6">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <button
-            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
-            onClick={() => {
-              localStorage.removeItem("timezoned-zones");
-              window.location.href = "/";
-            }}
-            title="Back to home"
-          >
-            <Globe className="size-5 text-accent-warm" />
-            <h1 className="text-lg md:text-2xl font-heading font-medium tracking-wide hidden sm:block">TimeZoned</h1>
-          </button>
-          <DayNavigation />
-          <div className="flex items-center gap-2">
-            <AddTimezone />
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
-
-      <main className="flex-1 px-4 py-4 md:px-6">
-        <div className="mx-auto max-w-7xl">
-          <VerticalTimeTable />
-        </div>
-      </main>
-    </div>
-  );
-}
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: SITE_NAME,
+  url: SITE_URL,
+  description: SITE_DESCRIPTION,
+  applicationCategory: "UtilitiesApplication",
+  operatingSystem: "Any",
+  browserRequirements: "Requires JavaScript",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  featureList: [
+    "Compare up to any number of cities side by side",
+    "Working hours shaded for every time zone",
+    "Best meeting time suggestions",
+    "Copy a time proposal in every participant's local time",
+    "Daylight saving time aware",
+  ],
+};
 
 export default function Page() {
   return (
-    <Suspense>
-      <TimezoneApp />
-    </Suspense>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }} />
+      <h1 className="sr-only">TimeZoned: time zone converter and meeting planner</h1>
+      <TimezoneApp mode="home" />
+    </>
   );
 }

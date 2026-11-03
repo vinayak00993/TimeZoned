@@ -1,116 +1,149 @@
 # TimeZoned
 
-A beautiful timezone comparison tool for scheduling across international timezones.
+A time zone converter and meeting planner. Compare cities hour by hour, see who is at work, find the best overlap, and copy a proposal everyone can read in their own time.
 
 **Live:** [www.gettimezoned.com](https://www.gettimezoned.com) · **Deployed on:** Railway · **Domain via:** Squarespace
 
 ---
 
-## Getting Started
+## Getting started
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000).
+
+| Script | What it does |
+|--------|--------------|
+| `npm run dev` | Development server |
+| `npm run build` | Production build (prerenders every city page and the featured pairs) |
+| `npm run lint` | ESLint with the Next.js and React Compiler rules |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | Vitest unit tests for the time math, overlap engine, slugs and search |
+
+CI runs all four on every pull request (`.github/workflows/ci.yml`).
 
 ---
 
 ## Stack
 
-- **Next.js** (App Router) + TypeScript
-- **Tailwind CSS** + shadcn/ui
-- **Zustand** for state
-- **date-fns-tz** for timezone calculations (DST-aware)
-- **Shippori Mincho** (Google Fonts) for headings
+- **Next.js 16** (App Router) + TypeScript
+- **Tailwind CSS v4** + shadcn/ui primitives
+- **Zustand** for client state
+- **date-fns-tz** for DST-aware time zone math
+- **Vitest** for unit tests
+- **Shippori Mincho** (Google Fonts) for headings, Inter for body text
 
 ---
 
-## Design System — "Warm Japanese Hospitality"
+## Design system — "Warm Japanese Hospitality"
 
 Inspired by Grand Seiko Shunbun (spring equinox). Warm, textured, restrained.
 
-| Token | Value | Use |
-|-------|-------|-----|
-| Background | `#FEFFCA` | Warm ecru — golden, not sandy |
-| Card | `#FFFEE0` | Slightly lighter |
-| Header cards | `#FAE8ED` | Cherry blossom pink |
-| Accent | `#B07D6E` | Dusty rose |
-| Next-day (light) | `#A8290E` | Torii vermilion |
-| Next-day (dark) | `#9B8FC0` | Soft mauve |
-| Font | Shippori Mincho | Headings/city names only |
+| Token | Light | Dark | Use |
+|-------|-------|------|-----|
+| Background | `#FEFFCA` | `#1C1810` | Warm ecru canvas |
+| Card | `#FFFEE0` | `#241F17` | Panels and popovers |
+| Header cards | `#FAE8ED` | card | Cherry blossom pink column headers |
+| Accent | `#B07D6E` | `#D4957A` | Dusty rose, selection ring |
+| Previous day | `#C4832A` | `#D4952F` | Amber |
+| Next day | `#9A5A3C` | `#9B8FC0` | Muted terracotta / soft mauve |
+| Working hours | sage tint | sage tint | `--shade-work` |
+| Early or late | faint amber | faint amber | `--shade-edge` |
+| Asleep | warm grey | near black | `--shade-sleep` |
 
-Canvas texture: SVG turbulence noise at ~3% opacity + raking light gradient + vignette.
+Canvas texture: SVG turbulence noise at ~3% opacity + raking light gradient + vignette. The cherry blossom art lives in the right margin on wide screens only, so it never sits behind the table.
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
 src/
   app/
-    page.tsx          # Main app, URL param handling, day navigation
-    layout.tsx        # Fonts, cherry blossom SVG background art
-    globals.css       # Full design token system (light + dark)
+    layout.tsx              # Fonts, metadata defaults, theme script, footer, background art
+    page.tsx                # Home: converter + WebApplication structured data
+    opengraph-image.tsx     # Default social preview image
+    sitemap.ts, robots.ts, manifest.ts, not-found.tsx
+    time/
+      page.tsx              # Index of every city, grouped by country
+      [slug]/page.tsx       # /time/mumbai (city) and /time/mumbai-to-new-york (pair)
+      [slug]/opengraph-image.tsx
   components/
-    VerticalTimeTable.tsx   # Main table — 48 rows × N timezone columns
-    AddTimezone.tsx         # City search with keyboard navigation
-    ThemeToggle.tsx         # Light/dark toggle
-  data/
-    cities.ts         # 209 cities globally
-  store/
-    timezone-store.ts # Zustand store — zones, dayOffset, theme, currentTime
+    TimezoneApp.tsx         # Shell: header, day navigation, URL sync (home) or seeded zones (embed)
+    Scheduler.tsx           # Slots, best-time chips, legend, selection + copy bar
+    TimeTable.tsx           # The grid: pinned headers, shading, drag / tap / keyboard selection
+    ZoneHeader.tsx          # Column header: live time, edit, remove, reorder
+    CitySearch.tsx          # Shared combobox used by Add and Edit
+    AddTimezone.tsx, StarterChips.tsx, ThemeToggle.tsx, SiteFooter.tsx
+    seo/time-content.tsx    # Server-rendered content for city and pair pages
   lib/
-    time-utils.ts     # DST-aware helpers (date-fns-tz)
+    slots.ts                # Slot math, DST-safe per-slot UTC, overlap engine, share summary
+    slugs.ts                # City slugs, pair slugs, hub cities, featured pairs
+    time-utils.ts           # Offsets, DST detection, difference sentences
+    city-search.ts          # Ranked search over the city list
+    hooks.ts, site.ts, utils.ts
+  data/
+    cities.ts               # 209 cities
+    countries.ts            # Country code → name
+  store/
+    timezone-store.ts       # Zustand store: zones, theme, day offset, persistence flag
 ```
 
 ---
 
-## Key Behaviours
+## Key behaviours
 
-- **URL format:** `?tz=America/Los_Angeles:Los%20Angeles,Asia/Kolkata:Chennai`
-  - Encodes `timezone:CityName` — preserves exact city on reload/share
-- **Logo click** → clears localStorage + URL, fresh start
-- **Day navigation** → offset entire table ±1 day (prev/next buttons)
-- **Hover/click rows** → highlights the selected time across all zones
-- **Auto-scroll** → jumps to current time row on load
+- **URL format (home):** `?tz=America/Los_Angeles:Los%20Angeles,Asia/Kolkata:Chennai` — `timezone:CityName`, so the exact city survives reload and share links.
+- **First column is the reference.** Rows are that city's day; other columns show the matching local time with a date chip when it crosses midnight.
+- **Hourly rows by default**, half-hour rows only when a zone sits at a non-whole-hour offset (India, Nepal, Adelaide, …).
+- **Shading:** working hours 9–6, awake 7–10, asleep otherwise, per cell.
+- **Best times:** the longest windows where every city is at work, or at least awake, shown as chips above the table. Clicking one selects it.
+- **Selection:** drag with a mouse, tap a start and an end on touch, or use Enter / Shift+Enter on the keyboard. The copy bar lists the range in every city.
+- **Theme:** stored in `localStorage` and applied by an inline script before first paint, so there is no light flash.
+- **City pages** (`/time/[city]`) seed the table with that city and the visitor's own zone. **Pair pages** seed both cities. Neither writes to `localStorage`.
+- **Logo click on the home page** clears saved zones and starts fresh.
+
+---
+
+## SEO
+
+- One page per city (209) and per ordered pair of 48 hub cities (2,256), all listed in `/sitemap.xml`.
+- City pages and the featured pairs are prerendered at build time; other pairs render on first request and are cached. Every page revalidates hourly so offset text stays correct across daylight saving changes.
+- Each page has its own title, description, canonical URL, Open Graph / Twitter card, generated preview image, breadcrumb structured data, and (for pairs) FAQ structured data.
+- Pair pages carry crawlable content: the difference in words, DST notes, the best time to call, a 24-row conversion table, FAQ, and links to the reverse pair and related comparisons.
 
 ---
 
 ## Roadmap
 
-### Phase 1 — Polish ✅ (April 2026)
-- Vertical table layout with 30-min slots
-- Warm Japanese design overhaul
-- 209 cities globally including full Indian city set
-- Keyboard navigation in search
-- City names persist correctly in URLs
-- DST-aware calculations
-- Dark mode
+### Phase 1 — Polish ✅
+- Vertical table with pinned headers, working-hours shading, phone layout
+- Warm Japanese design, light and dark
+- 209 cities, keyboard-navigable search, editable columns
+- DST-safe per-slot math, unit tests, CI
 
-### Phase 2 — Meeting Scheduler (next)
-- Click + drag to select a time range
-- Color-coded overlap: green = everyone awake, yellow = early/late, red = asleep
-- One-click copy: "Proposing 9 AM PT / 9:30 PM IST — does this work?"
-- Saved meeting slots with names
+### Phase 2 — Meeting scheduler ✅
+- Drag, tap, or keyboard range selection
+- Best-overlap suggestions
+- One-click copy of the proposal in every local time
 
-### Phase 3 — Collaboration
-- Named team views with shareable links (no login required)
-- Embeddable widget for Notion/Confluence
-- Google Calendar integration — paste event link, see it highlighted
-- City-specific background art (Tokyo → cherry blossoms, Mumbai → Gateway of India, etc.)
+### Phase 3 — Discovery ✅
+- City and city-pair landing pages with structured data
+- Sitemap, robots, manifest, social preview images
 
-### Phase 4 — Smart Features
-- Natural language: "Find me a time that works for LA, Mumbai and London"
-- Working hours profiles per person
-- "Best time" engine — surfaces top 3 overlap windows per day
+### Phase 4 — Collaboration (next)
+- Named team views with shareable links
+- Working-hours profiles per person
+- Google Calendar integration
+- Embeddable widget
 
 ### Phase 5 — Product
 - Free tier: up to 5 zones
-- Pro ($5/mo): unlimited zones, team views, calendar integration
-- Team ($15/mo): shared workspace, embeds, history
-- SEO pages for top city-pair searches
+- Pro: unlimited zones, team views, calendar integration
+- Team: shared workspace, embeds, history
 
 ---
 
@@ -118,14 +151,30 @@ src/
 
 **Railway** auto-deploys from `main` on merge.
 
-**Custom domain:** `www.gettimezoned.com` via Squarespace DNS → Railway CNAME.
-Root `gettimezoned.com` forwards to `www` via Squarespace domain forwarding (301, maintain paths).
+**Custom domain:** `www.gettimezoned.com` via Squarespace DNS → Railway CNAME. Root `gettimezoned.com` forwards to `www` (301, maintain paths).
 
-**Branch rules:** Never push directly to `main`. Always `agent/<feature>` branch + PR.
+**Branch rules:** Never push directly to `main`. Always a feature branch + PR.
+
+### Getting indexed
+
+The sitemap only exists once this code is live, so do this after the deploy.
+
+1. **Verification tokens.** In Railway, add two variables and redeploy:
+   - `GOOGLE_SITE_VERIFICATION` — the token from Search Console's "HTML tag" method (just the `content` value).
+   - `BING_SITE_VERIFICATION` — the token from Bing Webmaster Tools' "HTML Meta Tag" method.
+   The layout renders them as `google-site-verification` and `msvalidate.01` meta tags.
+2. **Google.** In [Search Console](https://search.google.com/search-console), add a URL-prefix property for `https://www.gettimezoned.com/`, verify with the HTML tag, then open *Sitemaps* and submit `sitemap.xml`. Use *URL Inspection → Request indexing* on the home page and a few pair pages to get the first crawl started.
+3. **Bing (and Yandex, Naver, Seznam, Yep) via IndexNow.** Generate a key with `openssl rand -hex 16`, set it as `INDEXNOW_KEY` in Railway, redeploy, then run:
+
+   ```bash
+   INDEXNOW_KEY=<key> npm run seo:indexnow
+   ```
+
+   The script reads the live sitemap, confirms `/indexnow/<key>.txt` is being served, and submits every URL. Run it again whenever pages are added. Bing Webmaster Tools will also accept the sitemap directly under *Sitemaps*; importing the verified Search Console property is the fastest way to set that up.
 
 ---
 
-## Domain Notes
+## Domain notes
 
 - `gettimezoned.com` — owned, live
 - `timezoned.com` — taken (expires March 2027, worth monitoring)
