@@ -3,8 +3,7 @@
 import { Suspense, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, Globe } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Globe } from "lucide-react";
 import { AddTimezone } from "@/components/AddTimezone";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Scheduler } from "@/components/Scheduler";
@@ -18,8 +17,6 @@ import {
   type TimezoneEntry,
 } from "@/store/timezone-store";
 import { cities } from "@/data/cities";
-import { useMounted } from "@/lib/hooks";
-import { formatDisplayDate, getDisplayDate } from "@/lib/time-utils";
 
 function zoneFromTimezone(tz: string, nameHint?: string | null): TimezoneEntry {
   const city = nameHint
@@ -90,44 +87,6 @@ function UrlSync() {
   return null;
 }
 
-function DayNavigation() {
-  const dayOffset = useTimezoneStore((s) => s.dayOffset);
-  const incrementDay = useTimezoneStore((s) => s.incrementDay);
-  const decrementDay = useTimezoneStore((s) => s.decrementDay);
-  const resetDay = useTimezoneStore((s) => s.resetDay);
-  const currentTime = useTimezoneStore((s) => s.currentTime);
-  const zones = useTimezoneStore((s) => s.zones);
-  const mounted = useMounted();
-
-  const displayTz = zones[0]?.timezone ?? "UTC";
-  const dateLabel = mounted ? formatDisplayDate(getDisplayDate(currentTime, dayOffset), displayTz) : " ";
-
-  return (
-    <nav aria-label="Day" className="flex items-center gap-1">
-      <Button variant="ghost" size="icon-sm" onClick={decrementDay} aria-label="Previous day">
-        <ChevronLeft className="size-4" aria-hidden="true" />
-      </Button>
-      <button
-        type="button"
-        onClick={resetDay}
-        className="min-w-[9ch] rounded-md px-1.5 py-1 text-xs font-medium tabular-nums transition-colors hover:bg-accent sm:px-2 sm:text-sm"
-        title="Back to today"
-      >
-        {dateLabel}
-        {dayOffset !== 0 && (
-          <span className="ml-1.5 text-xs text-muted-foreground">
-            ({dayOffset > 0 ? "+" : ""}
-            {dayOffset}d)
-          </span>
-        )}
-      </button>
-      <Button variant="ghost" size="icon-sm" onClick={incrementDay} aria-label="Next day">
-        <ChevronRight className="size-4" aria-hidden="true" />
-      </Button>
-    </nav>
-  );
-}
-
 interface BaseProps {
   /** Server-rendered content shown above the table (page heading, summary). */
   intro?: React.ReactNode;
@@ -187,10 +146,9 @@ export function TimezoneApp(props: TimezoneAppProps) {
             title="TimeZoned home"
           >
             <Globe className="size-5 text-accent-warm" aria-hidden="true" />
-            <span className="hidden font-heading text-lg font-medium tracking-wide sm:block md:text-2xl">TimeZoned</span>
+            <span className="font-heading text-lg font-medium tracking-wide md:text-xl">TimeZoned</span>
             <span className="sr-only">TimeZoned home</span>
           </Link>
-          <DayNavigation />
           <div className="flex items-center gap-1 sm:gap-2">
             <AddTimezone />
             <ThemeToggle />

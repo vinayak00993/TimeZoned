@@ -23,18 +23,18 @@ export default function Image() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 64,
-          background: "linear-gradient(135deg, #FEFFCA 0%, #FAE8ED 100%)",
-          color: "#2C2416",
+          background: "linear-gradient(135deg, #FFE5AB 0%, #FFF0CC 100%)",
+          color: "#3B2A12",
           fontFamily: "sans-serif",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 36 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 14, background: "#B07D6E" }} />
+          <div style={{ width: 28, height: 28, borderRadius: 14, background: "#B5542B" }} />
           {SITE_NAME}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={{ fontSize: 68, lineHeight: 1.1 }}>Find a time that works for everyone.</div>
-          <div style={{ fontSize: 30, color: "#8C7B65" }}>
+          <div style={{ fontSize: 30, color: "#7A5C33" }}>
             Compare cities side by side. Working hours shaded. Copy a proposal in every local time.
           </div>
         </div>
@@ -48,11 +48,11 @@ export default function Image() {
                 flex: 1,
                 padding: "18px 24px",
                 borderRadius: 16,
-                background: "rgba(255,255,255,0.55)",
-                border: "2px solid rgba(212,132,154,0.4)",
+                background: "rgba(255,245,220,0.75)",
+                border: "2px solid rgba(230,196,127,0.9)",
               }}
             >
-              <div style={{ fontSize: 24, color: "#8C7B65" }}>{c.city}</div>
+              <div style={{ fontSize: 24, color: "#7A5C33" }}>{c.city}</div>
               <div style={{ fontSize: 40 }}>{c.time}</div>
             </div>
           ))}
