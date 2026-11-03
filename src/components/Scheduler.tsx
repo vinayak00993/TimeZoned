@@ -11,6 +11,7 @@ import { useMounted } from "@/lib/hooks";
 import {
   bestWindows,
   buildShareSummary,
+  findOverlapWindows,
   buildSlots,
   currentSlotIndex,
   describeRange,
@@ -26,13 +27,10 @@ function Legend() {
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-1 pb-1.5 pt-0.5 text-[11px] text-muted-foreground">
       <span className="inline-flex items-center gap-1.5">
-        <span className="size-2.5 rounded-sm bg-shade-work" aria-hidden="true" /> 9 to 6
+        <span className="h-2.5 w-5 rounded-sm bg-shade-work" aria-hidden="true" /> works for everyone
       </span>
       <span className="inline-flex items-center gap-1.5">
-        <span className="size-2.5 rounded-sm bg-shade-edge ring-1 ring-border" aria-hidden="true" /> early or late
-      </span>
-      <span className="inline-flex items-center gap-1.5">
-        <span className="size-2.5 rounded-sm bg-shade-sleep ring-1 ring-border" aria-hidden="true" /> night
+        <span className="text-muted-foreground/70">12:00 AM</span> night
       </span>
       <span className="hidden sm:inline">Drag, or click a start and an end, to pick a slot.</span>
       <span className="sm:hidden">Tap a start and an end to pick a slot.</span>
@@ -124,6 +122,18 @@ export function Scheduler() {
     () => (zones.length >= 2 ? bestWindows(slots, timezones) : []),
     [slots, timezones, zones.length]
   );
+  // Rows to band: every "everyone at work" window, or every "everyone awake"
+  // window when there is no working overlap. Same rule as the chips above.
+  const goodSlots = useMemo(() => {
+    const all = findOverlapWindows(slots, timezones);
+    const quality = all.some((w) => w.quality === "work") ? "work" : "awake";
+    const set = new Set<number>();
+    for (const w of all) {
+      if (w.quality !== quality) continue;
+      for (let i = w.startIndex; i <= w.endIndex; i++) set.add(i);
+    }
+    return set;
+  }, [slots, timezones]);
 
   // A selection only makes sense for the day and granularity it was made on.
   const sig = `${refDateStr}|${refTz}|${step}`;
@@ -160,6 +170,7 @@ export function Scheduler() {
       )}
       <TimeTable
         afterHeader={<Legend />}
+        goodSlots={goodSlots}
         zones={zones}
         slots={slots}
         refDateStr={refDateStr}
