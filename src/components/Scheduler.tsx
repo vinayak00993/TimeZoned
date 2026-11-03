@@ -62,11 +62,11 @@ function BestTimes({ windows, slots, step, zones, onPick }: BestTimesProps) {
   return (
     <section aria-label="Best times to meet" className="rounded-lg border border-border/60 bg-card/60 px-3 py-2.5">
       <div className="mb-2 text-xs sm:text-sm">
-        <span className="font-medium">{quality === "work" ? "Good times to meet" : "Office hours never overlap"}</span>
+        <span className="font-medium">{quality === "work" ? "Good times to meet" : "No time when everyone's at work"}</span>
         <span className="text-muted-foreground">
           {quality === "work"
             ? " · everyone is between 9 and 6 where they are"
-            : " · these are the least painful options; someone takes an early or late call"}
+            : " · closest you'll get. Someone will be early or late."}
         </span>
       </div>
       <div className="flex flex-wrap gap-2">
