@@ -62,8 +62,7 @@ function BestTimes({ windows, slots, step, zones, onPick }: BestTimesProps) {
   return (
     <section aria-label="Best times to meet" className="rounded-lg border border-border/60 bg-card/60 px-3 py-2.5">
       <div className="mb-2 text-xs sm:text-sm">
-        <span className="font-medium">{quality === "work" ? "Good times to meet" : "No time when everyone's at work"}</span>
-        {quality === "awake" && <span className="text-muted-foreground"> · someone will be early or late</span>}
+        <span className="font-medium">{quality === "work" ? "Good times to meet" : "Times when everyone's awake"}</span>
       </div>
       <div className="flex flex-wrap gap-2">
         {windows.map((w) => {
