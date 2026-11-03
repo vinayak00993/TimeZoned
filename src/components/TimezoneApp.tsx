@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Globe } from "lucide-react";
+import { Logo } from "@/components/Logo";
 import { AddTimezone } from "@/components/AddTimezone";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Scheduler } from "@/components/Scheduler";
@@ -145,7 +145,7 @@ export function TimezoneApp(props: TimezoneAppProps) {
             }}
             title="TimeZoned home"
           >
-            <Globe className="size-5 text-accent-warm" aria-hidden="true" />
+            <Logo className="size-7" />
             <span className="font-heading text-lg font-medium tracking-wide md:text-xl">TimeZoned</span>
             <span className="sr-only">TimeZoned home</span>
           </Link>

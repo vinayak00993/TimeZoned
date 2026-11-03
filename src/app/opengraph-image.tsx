@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { SITE_NAME } from "@/lib/site";
+import { logoDataUri } from "@/lib/logo";
 
 export const alt = "TimeZoned: time zone converter and meeting planner";
 export const size = { width: 1200, height: 630 };
@@ -12,7 +13,8 @@ const COLUMNS = [
   { city: "Tokyo", time: "2:00 AM" },
 ];
 
-export default function Image() {
+export default async function Image() {
+  const logo = await logoDataUri();
   return new ImageResponse(
     (
       <div
@@ -29,7 +31,8 @@ export default function Image() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 36 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 14, background: "#B5542B" }} />
+          { }
+          <img src={logo} width={44} height={44} alt="" />
           {SITE_NAME}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
