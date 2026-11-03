@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { Check, Copy, X } from "lucide-react";
 import { TimeTable, type Selection } from "@/components/TimeTable";
+import { DayNavigation } from "@/components/DayNavigation";
 import { Button } from "@/components/ui/button";
 import { useTimezoneStore } from "@/store/timezone-store";
 import { useMounted } from "@/lib/hooks";
@@ -23,8 +24,7 @@ import { cn } from "@/lib/utils";
 
 function Legend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground sm:text-xs">
-      <span>Shading is each city&apos;s own clock:</span>
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-1 pb-1.5 pt-0.5 text-[11px] text-muted-foreground">
       <span className="inline-flex items-center gap-1.5">
         <span className="size-2.5 rounded-sm bg-shade-work" aria-hidden="true" /> 9 to 6
       </span>
@@ -32,8 +32,9 @@ function Legend() {
         <span className="size-2.5 rounded-sm bg-shade-edge ring-1 ring-border" aria-hidden="true" /> early or late
       </span>
       <span className="inline-flex items-center gap-1.5">
-        <span className="size-2.5 rounded-sm bg-shade-sleep ring-1 ring-border" aria-hidden="true" /> night
+        <span className="size-2.5 rounded-sm ring-1 ring-border" aria-hidden="true" /> night
       </span>
+      <span>in each city&apos;s own clock.</span>
       <span className="hidden sm:inline">Drag, or click a start and an end, to pick a slot.</span>
       <span className="sm:hidden">Tap a start and an end to pick a slot.</span>
     </div>
@@ -153,6 +154,7 @@ export function Scheduler() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-3">
+      <DayNavigation />
       {zones.length >= 2 && (
         <BestTimes
           windows={windows}
@@ -162,8 +164,8 @@ export function Scheduler() {
           onPick={(w) => setSelection({ start: w.startIndex, end: w.endIndex })}
         />
       )}
-      <Legend />
       <TimeTable
+        afterHeader={<Legend />}
         zones={zones}
         slots={slots}
         refDateStr={refDateStr}
@@ -208,8 +210,8 @@ export function Scheduler() {
       )}
 
       {selection && startUtc && endUtc && selection.start !== selection.end && !dragging && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-200">
-          <div className="mx-auto flex max-w-2xl items-start justify-between gap-3">
+        <div className="fixed inset-x-3 bottom-3 z-30 mx-auto max-w-2xl rounded-xl border border-border bg-popover/95 px-4 py-3 shadow-xl backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="flex items-start justify-between gap-3">
             <ul className="min-w-0 flex-1 space-y-0.5 text-xs sm:text-sm" aria-label="Selected time in every city">
               {zones.map((z) => (
                 <li key={z.id} className="truncate tabular-nums">

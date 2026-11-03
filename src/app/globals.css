@@ -57,46 +57,46 @@
 }
 
 :root {
-  --background: #FEFFCA;
-  --foreground: #2C2416;
-  --card: #FFFEE0;
-  --card-foreground: #2C2416;
-  --popover: #FFFEE0;
-  --popover-foreground: #2C2416;
-  --primary: #2C2416;
-  --primary-foreground: #FDFAF4;
-  --secondary: #F5F4A8;
-  --secondary-foreground: #2C2416;
-  --muted: #F5F4A8;
-  --muted-foreground: #8C7B65;
-  --accent: #F5F4A8;
-  --accent-foreground: #2C2416;
+  --background: #FFE5AB;
+  --foreground: #3B2A12;
+  --card: #FFF0CC;
+  --card-foreground: #3B2A12;
+  --popover: #FFF5DC;
+  --popover-foreground: #3B2A12;
+  --primary: #3B2A12;
+  --primary-foreground: #FFF5DC;
+  --secondary: #F7D693;
+  --secondary-foreground: #3B2A12;
+  --muted: #F7D693;
+  --muted-foreground: #7A5C33;
+  --accent: #F7D693;
+  --accent-foreground: #3B2A12;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #E8E6A0;
-  --input: #E8E6A0;
-  --ring: #B07D6E;
-  --chart-1: #B07D6E;
-  --chart-2: #7A9E7E;
-  --chart-3: #C4832A;
+  --border: #E6C47F;
+  --input: #E6C47F;
+  --ring: #B5542B;
+  --chart-1: #B5542B;
+  --chart-2: #5E7D4C;
+  --chart-3: #A8651A;
   --chart-4: #7B6FA0;
   --chart-5: #D4A99A;
   --radius: 0.625rem;
-  --sidebar: #FEFFCA;
-  --sidebar-foreground: #2C2416;
-  --sidebar-primary: #B07D6E;
-  --sidebar-primary-foreground: #FDFAF4;
-  --sidebar-accent: #F5F4A8;
-  --sidebar-accent-foreground: #2C2416;
-  --sidebar-border: #E8E6A0;
-  --sidebar-ring: #B07D6E;
-  --highlight: #D4A99A;
-  --amber-day: #C4832A;
-  --violet-day: #9A5A3C;
-  --accent-warm: #B07D6E;
-  --accent-sage: #7A9E7E;
-  --shade-work: rgba(122, 158, 126, 0.22);
-  --shade-edge: rgba(196, 131, 42, 0.07);
-  --shade-sleep: rgba(44, 36, 22, 0.06);
+  --sidebar: #FFE5AB;
+  --sidebar-foreground: #3B2A12;
+  --sidebar-primary: #B5542B;
+  --sidebar-primary-foreground: #FFF5DC;
+  --sidebar-accent: #F7D693;
+  --sidebar-accent-foreground: #3B2A12;
+  --sidebar-border: #E6C47F;
+  --sidebar-ring: #B5542B;
+  --highlight: #B5542B;
+  --amber-day: #8F6A14;
+  --violet-day: #B5542B;
+  --accent-warm: #B5542B;
+  --accent-sage: #5E7D4C;
+  --shade-work: rgba(94, 125, 76, 0.24);
+  --shade-edge: rgba(94, 125, 76, 0.09);
+  --shade-sleep: transparent;
 }
 
 .dark {
@@ -173,7 +173,7 @@
     pointer-events: none;
     background: radial-gradient(
       ellipse 140% 120% at 15% 10%,
-      rgba(255, 252, 220, 0.18) 0%,
+      rgba(255, 250, 230, 0.22) 0%,
       transparent 55%
     ),
     radial-gradient(

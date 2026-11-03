@@ -55,6 +55,8 @@ export function ZoneHeader({
   const liveTime = formatCurrentTime(currentTime, zone.timezone);
   const abbr = getTimezoneAbbr(displayDate, zone.timezone);
   const headerDate = formatInTimeZone(currentTime, zone.timezone, "MMM d");
+  const zoneDay = formatInTimeZone(currentTime, zone.timezone, "yyyy-MM-dd");
+  const refDay = zones[0] ? formatInTimeZone(currentTime, zones[0].timezone, "yyyy-MM-dd") : zoneDay;
   const isReference = index === 0;
 
   return (
@@ -62,7 +64,7 @@ export function ZoneHeader({
       ref={containerRef}
       role="columnheader"
       className={cn(
-        "group relative min-w-0 flex-1 rounded-md border border-[#D4849A]/40 bg-[#FAE8ED] px-1 py-2 text-center dark:border-border/60 dark:bg-card sm:px-3 sm:py-3",
+        "group relative min-w-0 flex-1 rounded-md border border-border bg-card px-1 py-1.5 text-center sm:px-3 sm:py-2",
         dragState.from === index && "opacity-50",
         dragState.over === index && dragState.from !== null && "border-accent-warm/70 ring-1 ring-accent-warm/40"
       )}
@@ -107,25 +109,32 @@ export function ZoneHeader({
         </button>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setEditing((o) => !o)}
-        aria-expanded={editing}
-        aria-haspopup="dialog"
-        className="group/edit inline-flex max-w-full items-center gap-1 font-heading text-sm font-medium tracking-wide text-foreground transition-colors hover:text-accent-warm sm:text-base"
-        title="Change city"
-      >
-        <span className="truncate">{zone.label}</span>
-        <Pencil className="size-3 shrink-0 opacity-0 transition-opacity group-hover/edit:opacity-60 group-focus-visible/edit:opacity-60" aria-hidden="true" />
-        <span className="sr-only">, change city</span>
-      </button>
-
-      <div className="mt-0.5 text-base font-semibold tabular-nums leading-tight sm:text-xl" suppressHydrationWarning>
-        {liveTime}
+      <div className="flex items-baseline justify-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => setEditing((o) => !o)}
+          aria-expanded={editing}
+          aria-haspopup="dialog"
+          className="group/edit inline-flex min-w-0 items-center gap-1 font-heading text-sm font-medium tracking-wide text-foreground transition-colors hover:text-accent-warm"
+          title="Change city"
+        >
+          <span className="truncate">{zone.label}</span>
+          <Pencil className="size-3 shrink-0 opacity-0 transition-opacity group-hover/edit:opacity-60 group-focus-visible/edit:opacity-60" aria-hidden="true" />
+          <span className="sr-only">, change city</span>
+        </button>
+        <span className="hidden shrink-0 text-[10px] text-muted-foreground sm:inline" suppressHydrationWarning>
+          {abbr}
+        </span>
       </div>
-      <div className="mt-0.5 truncate text-[10px] text-muted-foreground sm:text-[11px]" suppressHydrationWarning>
-        {abbr}
-        <span className="hidden sm:inline"> &middot; {headerDate}</span>
+
+      <div className="mt-0.5 flex items-baseline justify-center gap-1 whitespace-nowrap leading-tight" suppressHydrationWarning>
+        <span className="text-base font-semibold tabular-nums sm:text-lg">{liveTime}</span>
+        {zoneDay !== refDay && (
+          <span className={cn("text-[10px] font-medium", zoneDay > refDay ? "text-violet-day" : "text-amber-day")}>
+            <span className="hidden sm:inline">{headerDate}</span>
+            <span className="sm:hidden">{zoneDay > refDay ? "+1" : "−1"}</span>
+          </span>
+        )}
         {isReference && count > 1 && <span className="sr-only">, reference timezone</span>}
       </div>
 

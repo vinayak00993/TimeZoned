@@ -40,19 +40,21 @@ CI runs all four on every pull request (`.github/workflows/ci.yml`).
 
 ## Design system — "Warm Japanese Hospitality"
 
-Inspired by Grand Seiko Shunbun (spring equinox). Warm, textured, restrained.
+Inspired by Grand Seiko Shunbun (spring equinox). Warm, textured, restrained. One accent family and one tint: sage marks working hours, terracotta marks what you picked, everything else is paper.
 
 | Token | Light | Dark | Use |
 |-------|-------|------|-----|
-| Background | `#FEFFCA` | `#1C1810` | Warm ecru canvas |
-| Card | `#FFFEE0` | `#241F17` | Panels and popovers |
-| Header cards | `#FAE8ED` | card | Cherry blossom pink column headers |
-| Accent | `#B07D6E` | `#D4957A` | Dusty rose, selection ring |
-| Previous day | `#C4832A` | `#D4952F` | Amber |
-| Next day | `#9A5A3C` | `#9B8FC0` | Muted terracotta / soft mauve |
-| Working hours | sage tint | sage tint | `--shade-work` |
-| Early or late | faint amber | faint amber | `--shade-edge` |
-| Asleep | warm grey | near black | `--shade-sleep` |
+| Background | `#FFE5AB` | `#1C1810` | Warm apricot canvas |
+| Card | `#FFF0CC` | `#241F17` | Header cards, panels |
+| Popover | `#FFF5DC` | `#241F17` | Menus, copy bar |
+| Foreground | `#3B2A12` | `#F0E8D8` | Text |
+| Muted text | `#7A5C33` | `#9A8C78` | Labels, legend |
+| Border | `#E6C47F` | `#3A3228` | Hairlines |
+| Accent | `#B5542B` | `#D4957A` | Selection rails, current row, links |
+| Sage | `#5E7D4C` | `#8AB08E` | Working-hours tint (`--shade-work`, lighter for `--shade-edge`) |
+| Night | no fill | near black | `--shade-sleep`, muted text |
+| Previous day | `#8F6A14` | `#D4952F` | Date chip only |
+| Next day | `#B5542B` | `#9B8FC0` | Date chip only |
 
 Canvas texture: SVG turbulence noise at ~3% opacity + raking light gradient + vignette. The cherry blossom art lives in the right margin on wide screens only, so it never sits behind the table.
 

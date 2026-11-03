@@ -24,6 +24,8 @@ interface TimeTableProps {
   onSelectionChange: (selection: Selection | null) => void;
   /** Reports when a pointer drag across rows starts and ends. */
   onDragChange?: (dragging: boolean) => void;
+  /** Rendered between the pinned headers and the first row. */
+  afterHeader?: React.ReactNode;
 }
 
 function range(a: number, b: number): Selection {
@@ -44,6 +46,7 @@ export function TimeTable({
   selection,
   onSelectionChange,
   onDragChange,
+  afterHeader,
 }: TimeTableProps) {
   const reorderZones = useTimezoneStore((s) => s.reorderZones);
   const [drag, setDrag] = useState<{ from: number | null; over: number | null }>({ from: null, over: null });
@@ -171,6 +174,8 @@ export function TimeTable({
         </div>
       </div>
 
+      {afterHeader}
+
       <div className="pt-1">
         {slots.map((slot) => {
           const i = slot.index;
@@ -216,17 +221,18 @@ export function TimeTable({
                     key={zone.id}
                     role="gridcell"
                     className={cn(
-                      "my-px flex min-w-0 flex-1 items-center justify-center whitespace-nowrap rounded-sm px-1 py-1 text-center text-xs tabular-nums sm:px-3 sm:py-1.5 sm:text-base",
-                      part === "work" && "bg-shade-work font-semibold",
-                      part === "edge" && "bg-shade-edge font-medium",
-                      part === "sleep" && "bg-shade-sleep text-muted-foreground",
-                      dayDiff === "prev" && "text-amber-day",
-                      dayDiff === "next" && "text-violet-day"
+                      "my-px flex min-w-0 flex-1 items-center justify-center whitespace-nowrap rounded-sm px-1 py-1 text-center text-xs tabular-nums sm:px-3 sm:py-1.5 sm:text-sm",
+                      part === "work" && "bg-shade-work font-medium",
+                      part === "edge" && "bg-shade-edge",
+                      part === "sleep" && "bg-shade-sleep text-muted-foreground"
                     )}
                   >
                     <span className="leading-none">{formatSlotTime(hour, minute)}</span>
                     {dayDiff !== "same" && (
-                      <span className="ml-1 text-[9px] opacity-60" aria-label={dayDiff === "next" ? "next day" : "previous day"}>
+                      <span
+                        className={cn("ml-1 text-[9px] font-medium", dayDiff === "next" ? "text-violet-day" : "text-amber-day")}
+                        aria-label={dayDiff === "next" ? "next day" : "previous day"}
+                      >
                         <span className="hidden sm:inline">{formatInTimeZone(slot.utc, zone.timezone, "MMM d")}</span>
                         <span className="sm:hidden">{dayDiff === "next" ? "+1" : "−1"}</span>
                       </span>

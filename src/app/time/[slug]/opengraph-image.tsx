@@ -50,18 +50,18 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 64,
-          background: "linear-gradient(135deg, #FEFFCA 0%, #FAE8ED 100%)",
-          color: "#2C2416",
+          background: "linear-gradient(135deg, #FFE5AB 0%, #FFF0CC 100%)",
+          color: "#3B2A12",
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 32, color: "#8C7B65" }}>
-          <div style={{ width: 24, height: 24, borderRadius: 12, background: "#B07D6E" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 32, color: "#7A5C33" }}>
+          <div style={{ width: 24, height: 24, borderRadius: 12, background: "#B5542B" }} />
           {SITE_NAME}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={{ fontSize: 72, lineHeight: 1.1 }}>{heading}</div>
-          <div style={{ fontSize: 32, color: "#8C7B65" }}>{sub}</div>
+          <div style={{ fontSize: 32, color: "#7A5C33" }}>{sub}</div>
         </div>
         <div style={{ display: "flex", gap: 16 }}>
           {cards.map((c) => (
@@ -73,11 +73,11 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                 flex: 1,
                 padding: "20px 28px",
                 borderRadius: 16,
-                background: "rgba(255,255,255,0.55)",
-                border: "2px solid rgba(212,132,154,0.4)",
+                background: "rgba(255,245,220,0.75)",
+                border: "2px solid rgba(230,196,127,0.9)",
               }}
             >
-              <div style={{ fontSize: 26, color: "#8C7B65" }}>{c.label}</div>
+              <div style={{ fontSize: 26, color: "#7A5C33" }}>{c.label}</div>
               <div style={{ fontSize: 48 }}>{c.value}</div>
             </div>
           ))}
