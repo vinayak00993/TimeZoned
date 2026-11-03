@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { formatInTimeZone } from "date-fns-tz";
 import { Check, Copy, X } from "lucide-react";
 import { TimeTable, type Selection } from "@/components/TimeTable";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,6 @@ import {
   buildSlots,
   currentSlotIndex,
   describeRange,
-  formatSlotTime,
   getDisplayDateString,
   needsHalfHourSlots,
   type OverlapWindow,
@@ -24,17 +24,18 @@ import { cn } from "@/lib/utils";
 function Legend() {
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground sm:text-xs">
+      <span>Shading is each city&apos;s own clock:</span>
       <span className="inline-flex items-center gap-1.5">
-        <span className="size-2.5 rounded-sm bg-shade-work" aria-hidden="true" /> Working hours (9–6)
+        <span className="size-2.5 rounded-sm bg-shade-work" aria-hidden="true" /> 9 to 6
       </span>
       <span className="inline-flex items-center gap-1.5">
-        <span className="size-2.5 rounded-sm bg-shade-edge ring-1 ring-border" aria-hidden="true" /> Early or late
+        <span className="size-2.5 rounded-sm bg-shade-edge ring-1 ring-border" aria-hidden="true" /> early or late
       </span>
       <span className="inline-flex items-center gap-1.5">
-        <span className="size-2.5 rounded-sm bg-shade-sleep ring-1 ring-border" aria-hidden="true" /> Asleep
+        <span className="size-2.5 rounded-sm bg-shade-sleep ring-1 ring-border" aria-hidden="true" /> night
       </span>
-      <span className="hidden sm:inline">Click a start and end time, or drag, to propose a slot.</span>
-      <span className="sm:hidden">Tap a start and an end time to propose a slot.</span>
+      <span className="hidden sm:inline">Drag, or click a start and an end, to pick a slot.</span>
+      <span className="sm:hidden">Tap a start and an end to pick a slot.</span>
     </div>
   );
 }
@@ -43,43 +44,56 @@ interface BestTimesProps {
   windows: OverlapWindow[];
   slots: ReturnType<typeof buildSlots>;
   step: StepMinutes;
-  refLabel: string;
+  zones: { id: string; label: string; timezone: string }[];
   onPick: (w: OverlapWindow) => void;
 }
 
-function BestTimes({ windows, slots, step, refLabel, onPick }: BestTimesProps) {
+function BestTimes({ windows, slots, step, zones, onPick }: BestTimesProps) {
   if (windows.length === 0) {
     return (
-      <section aria-label="Best meeting times" className="rounded-lg border border-border/60 bg-card/60 px-3 py-2.5 text-xs text-muted-foreground sm:text-sm">
-        There is no hour today when everyone is awake. Someone will need an early or late slot, or try removing a city.
+      <section aria-label="Best times to meet" className="rounded-lg border border-border/60 bg-card/60 px-3 py-2.5 text-xs text-muted-foreground sm:text-sm">
+        No hour today when everyone&apos;s awake. Drop a city, or someone takes a very early or very late call.
       </section>
     );
   }
   const quality = windows[0].quality;
+  const others = zones.slice(1);
   return (
-    <section aria-label="Best meeting times" className="rounded-lg border border-border/60 bg-card/60 px-3 py-2.5">
-      <div className="mb-1.5 text-xs font-medium text-muted-foreground">
-        {quality === "work" ? "Everyone is at work" : "No shared working hours, but everyone is awake"}
-        <span className="font-normal"> · times in {refLabel}</span>
+    <section aria-label="Best times to meet" className="rounded-lg border border-border/60 bg-card/60 px-3 py-2.5">
+      <div className="mb-2 text-xs sm:text-sm">
+        <span className="font-medium">{quality === "work" ? "Good times to meet" : "Office hours never overlap"}</span>
+        <span className="text-muted-foreground">
+          {quality === "work"
+            ? " · everyone is between 9 and 6 where they are"
+            : " · these are the least painful options; someone takes an early or late call"}
+        </span>
       </div>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {windows.map((w) => {
-          const start = slots[w.startIndex];
-          const endTotal = (w.endIndex + 1) * step;
-          const endLabel = formatSlotTime(Math.floor(endTotal / 60) % 24, endTotal % 60);
+          const startUtc = slots[w.startIndex].utc;
+          const endUtc = new Date(slots[w.endIndex].utc.getTime() + step * 60_000);
+          const rangeIn = (tz: string) =>
+            `${formatInTimeZone(startUtc, tz, "h:mm a")} – ${formatInTimeZone(endUtc, tz, "h:mm a")}`;
           return (
             <button
               key={`${w.startIndex}-${w.endIndex}`}
               type="button"
               onClick={() => onPick(w)}
               className={cn(
-                "rounded-full border px-3 py-1 text-xs font-medium tabular-nums transition-colors sm:text-sm",
+                "flex flex-col items-start rounded-lg border px-3 py-1.5 text-left transition-colors",
                 quality === "work"
                   ? "border-accent-sage/60 bg-shade-work hover:bg-accent-sage/40"
                   : "border-amber-day/40 bg-shade-edge hover:bg-amber-day/20"
               )}
             >
-              {formatSlotTime(start.hour, start.minute)} – {endLabel}
+              <span className="text-sm font-medium tabular-nums">
+                {rangeIn(zones[0].timezone)} <span className="font-normal text-muted-foreground">{zones[0].label}</span>
+              </span>
+              {others.length > 0 && (
+                <span className="text-[11px] tabular-nums text-muted-foreground">
+                  {others.map((z) => `${rangeIn(z.timezone)} ${z.label}`).join(" · ")}
+                </span>
+              )}
             </button>
           );
         })}
@@ -143,7 +157,7 @@ export function Scheduler() {
           windows={windows}
           slots={slots}
           step={step}
-          refLabel={zones[0].label}
+          zones={zones}
           onPick={(w) => setSelection({ start: w.startIndex, end: w.endIndex })}
         />
       )}
