@@ -23,10 +23,8 @@ export function StarterChips() {
       className="mx-auto mb-4 max-w-2xl rounded-lg border border-dashed border-border bg-card/50 px-4 py-3"
     >
       <p className="text-sm">
-        <span className="font-heading font-medium">Compare {zones[0].label} with another city.</span>{" "}
-        <span className="text-muted-foreground">
-          Every hour shows side by side with working hours shaded, and the best overlap is picked out for you.
-        </span>
+        <span className="font-heading font-medium">Add a city to compare with {zones[0].label}.</span>{" "}
+        <span className="text-muted-foreground">You&apos;ll see both days side by side, with office hours shaded.</span>
       </p>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {options.map((city) => (

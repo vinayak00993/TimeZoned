@@ -9,8 +9,8 @@ export function SiteFooter() {
         <div className="space-y-2">
           <p className="font-heading text-base font-medium text-foreground">TimeZoned</p>
           <p>
-            A time zone converter and meeting planner. Compare cities hour by hour, see who is at work, and copy a
-            proposal everyone can read in their own time.
+            Line up cities hour by hour, see who&apos;s at work, and copy a meeting time everyone can read in their
+            own clock.
           </p>
         </div>
         <nav aria-label="Popular comparisons" className="md:col-span-2">
