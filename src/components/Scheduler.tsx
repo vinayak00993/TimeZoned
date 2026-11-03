@@ -109,6 +109,7 @@ export function Scheduler() {
   const tick = useTimezoneStore((s) => s.tick);
   const mounted = useMounted();
   const [copied, setCopied] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const [sel, setSel] = useState<{ sig: string; selection: Selection | null }>({ sig: "", selection: null });
 
   useEffect(() => {
@@ -171,10 +172,43 @@ export function Scheduler() {
         displayDate={displayDate}
         selection={selection}
         onSelectionChange={setSelection}
+        onDragChange={setDragging}
       />
 
-      {selection && startUtc && endUtc && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm">
+      {selection && startUtc && endUtc && selection.start === selection.end && !dragging && (
+        // A single pick shows a small pill up top so the rows below the start stay clickable.
+        <div
+          role="status"
+          className="fixed left-1/2 top-3 z-30 flex max-w-[calc(100vw-1.5rem)] -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-popover px-3 py-1.5 text-xs shadow-lg animate-in fade-in slide-in-from-top-2 duration-200 sm:text-sm"
+        >
+          <span className="truncate">
+            <span className="font-medium tabular-nums">{formatInTimeZone(startUtc, refTz, "h:mm a")}</span>
+            <span className="text-muted-foreground">
+              <span className="hidden sm:inline"> picked · click the end time, or drag</span>
+              <span className="sm:hidden"> picked · tap the end time</span>
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={copySummary}
+            className="shrink-0 rounded-full px-2 py-0.5 font-medium text-accent-warm hover:bg-accent"
+            title="Copy just this slot"
+          >
+            {copied ? "Copied" : "Just this slot"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelection(null)}
+            className="shrink-0 rounded-full p-0.5 text-muted-foreground hover:text-foreground"
+            aria-label="Clear selection"
+          >
+            <X className="size-3.5" aria-hidden="true" />
+          </button>
+        </div>
+      )}
+
+      {selection && startUtc && endUtc && selection.start !== selection.end && !dragging && (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-200">
           <div className="mx-auto flex max-w-2xl items-start justify-between gap-3">
             <ul className="min-w-0 flex-1 space-y-0.5 text-xs sm:text-sm" aria-label="Selected time in every city">
               {zones.map((z) => (

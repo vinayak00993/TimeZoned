@@ -22,6 +22,8 @@ interface TimeTableProps {
   displayDate: Date;
   selection: Selection | null;
   onSelectionChange: (selection: Selection | null) => void;
+  /** Reports when a pointer drag across rows starts and ends. */
+  onDragChange?: (dragging: boolean) => void;
 }
 
 function range(a: number, b: number): Selection {
@@ -41,6 +43,7 @@ export function TimeTable({
   displayDate,
   selection,
   onSelectionChange,
+  onDragChange,
 }: TimeTableProps) {
   const reorderZones = useTimezoneStore((s) => s.reorderZones);
   const [drag, setDrag] = useState<{ from: number | null; over: number | null }>({ from: null, over: null });
@@ -58,16 +61,29 @@ export function TimeTable({
     return () => clearTimeout(timer);
   }, [currentIndex]);
 
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  // Once a range is complete, make sure its end row is not hidden under the copy bar.
+  const revealRow = useCallback((index: number) => {
+    requestAnimationFrame(() => {
+      gridRef.current
+        ?.querySelector<HTMLElement>(`[data-slot-index="${index}"]`)
+        ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    });
+  }, []);
+
   // Click semantics shared by pointer and keyboard:
   // 1st click picks a start, 2nd click on another row completes the range,
   // clicking the only selected row clears it, any click after a range starts over.
   const clickRow = useCallback(
     (i: number, prev: Selection | null) => {
       if (isSingle(prev, i)) onSelectionChange(null);
-      else if (isSingle(prev)) onSelectionChange(range(prev!.start, i));
-      else onSelectionChange({ start: i, end: i });
+      else if (isSingle(prev)) {
+        onSelectionChange(range(prev!.start, i));
+        revealRow(i);
+      } else onSelectionChange({ start: i, end: i });
     },
-    [onSelectionChange]
+    [onSelectionChange, revealRow]
   );
 
   useEffect(() => {
@@ -75,7 +91,9 @@ export function TimeTable({
       const press = pressRef.current;
       if (!press) return;
       pressRef.current = null;
+      onDragChange?.(false);
       if (!press.moved) clickRow(press.anchor, press.prev);
+      else if (selection) revealRow(selection.end === press.anchor ? selection.start : selection.end);
     }
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointercancel", onUp);
@@ -83,12 +101,30 @@ export function TimeTable({
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
     };
-  }, [clickRow]);
+  }, [clickRow, selection, revealRow, onDragChange]);
+
+  useEffect(() => {
+    if (!selection) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onSelectionChange(null);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selection, onSelectionChange]);
 
   function onPointerDown(e: React.PointerEvent, i: number) {
     if (e.pointerType === "mouse" && e.button !== 0) return;
+    if (e.shiftKey && selection) {
+      // Shift-click extends the existing selection, like a spreadsheet.
+      pressRef.current = { anchor: selection.start, moved: true, prev: selection };
+      onSelectionChange(range(selection.start, i));
+      return;
+    }
     pressRef.current = { anchor: i, moved: false, prev: selection };
-    if (e.pointerType === "mouse") onSelectionChange({ start: i, end: i });
+    if (e.pointerType === "mouse") {
+      onDragChange?.(true);
+      onSelectionChange({ start: i, end: i });
+    }
   }
 
   function onPointerEnter(i: number) {
@@ -114,7 +150,7 @@ export function TimeTable({
   };
 
   return (
-    <div role="grid" aria-label="Time comparison table" aria-multiselectable="true" className="select-none">
+    <div ref={gridRef} role="grid" aria-label="Time comparison table" aria-multiselectable="true" className="select-none">
       {/* Column headers stay pinned while the day scrolls. */}
       <div role="row" className="sticky top-0 z-20 bg-background/95 pb-2 pt-1 backdrop-blur-sm">
         <div className="flex gap-1 sm:gap-2">
@@ -140,7 +176,8 @@ export function TimeTable({
           const i = slot.index;
           const isCurrent = i === currentIndex;
           const isSelected = !!selection && i >= selection.start && i <= selection.end;
-          const isHour = slot.minute === 0;
+          const isSelStart = isSelected && selection!.start === i;
+          const isSelEnd = isSelected && selection!.end === i;
 
           return (
             <div
@@ -148,14 +185,20 @@ export function TimeTable({
               ref={isCurrent ? currentRowRef : undefined}
               role="row"
               tabIndex={0}
+              data-slot-index={i}
               aria-selected={isSelected}
               aria-label={`${formatSlotTime(slot.hour, slot.minute)} in ${zones[0]?.label ?? "reference"}`}
               className={cn(
-                "flex cursor-pointer items-stretch gap-1 rounded-md outline-none transition-colors sm:gap-2",
+                "flex cursor-pointer items-stretch gap-1 outline-none transition-[background-color,box-shadow] duration-100 scroll-mt-32 scroll-mb-44 sm:gap-2",
                 "hover:bg-foreground/5 focus-visible:ring-2 focus-visible:ring-ring",
-                isHour ? "mt-0.5" : "",
+                !isSelected && "rounded-md",
                 isCurrent && !isSelected && "ring-1 ring-inset ring-highlight",
-                isSelected && "bg-accent-warm/20 ring-2 ring-inset ring-accent-warm/70"
+                // A selected run is drawn as one block: side rails on every row, caps on the ends.
+                isSelected && "bg-accent-warm/20",
+                isSelected && !isSelStart && !isSelEnd && "shadow-[inset_2px_0_0_var(--accent-warm),inset_-2px_0_0_var(--accent-warm)]",
+                isSelStart && !isSelEnd && "rounded-t-md shadow-[inset_2px_0_0_var(--accent-warm),inset_-2px_0_0_var(--accent-warm),inset_0_2px_0_var(--accent-warm)]",
+                isSelEnd && !isSelStart && "rounded-b-md shadow-[inset_2px_0_0_var(--accent-warm),inset_-2px_0_0_var(--accent-warm),inset_0_-2px_0_var(--accent-warm)]",
+                isSelStart && isSelEnd && "rounded-md shadow-[inset_0_0_0_2px_var(--accent-warm)]"
               )}
               onPointerDown={(e) => onPointerDown(e, i)}
               onPointerEnter={() => onPointerEnter(i)}
@@ -173,7 +216,7 @@ export function TimeTable({
                     key={zone.id}
                     role="gridcell"
                     className={cn(
-                      "flex min-w-0 flex-1 items-center justify-center whitespace-nowrap rounded-sm px-1 py-1 text-center text-xs tabular-nums sm:px-3 sm:py-1.5 sm:text-base",
+                      "my-px flex min-w-0 flex-1 items-center justify-center whitespace-nowrap rounded-sm px-1 py-1 text-center text-xs tabular-nums sm:px-3 sm:py-1.5 sm:text-base",
                       part === "work" && "bg-shade-work font-semibold",
                       part === "edge" && "bg-shade-edge font-medium",
                       part === "sleep" && "bg-shade-sleep text-muted-foreground",

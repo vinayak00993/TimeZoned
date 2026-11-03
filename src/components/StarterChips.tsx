@@ -22,10 +22,7 @@ export function StarterChips() {
       aria-label="Get started"
       className="mx-auto mb-4 max-w-2xl rounded-lg border border-dashed border-border bg-card/50 px-4 py-3"
     >
-      <p className="text-sm">
-        <span className="font-heading font-medium">Add a city to compare with {zones[0].label}.</span>{" "}
-        <span className="text-muted-foreground">You&apos;ll see both days side by side, with office hours shaded.</span>
-      </p>
+      <p className="font-heading text-sm font-medium">Add a second city</p>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {options.map((city) => (
           <button
