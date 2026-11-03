@@ -63,11 +63,7 @@ function BestTimes({ windows, slots, step, zones, onPick }: BestTimesProps) {
     <section aria-label="Best times to meet" className="rounded-lg border border-border/60 bg-card/60 px-3 py-2.5">
       <div className="mb-2 text-xs sm:text-sm">
         <span className="font-medium">{quality === "work" ? "Good times to meet" : "No time when everyone's at work"}</span>
-        <span className="text-muted-foreground">
-          {quality === "work"
-            ? " · everyone is between 9 and 6 where they are"
-            : " · closest you'll get. Someone will be early or late."}
-        </span>
+        {quality === "awake" && <span className="text-muted-foreground"> · someone will be early or late</span>}
       </div>
       <div className="flex flex-wrap gap-2">
         {windows.map((w) => {
@@ -181,7 +177,7 @@ export function Scheduler() {
         // A single pick shows a small pill up top so the rows below the start stay clickable.
         <div
           role="status"
-          className="fixed left-1/2 top-3 z-30 flex max-w-[calc(100vw-1.5rem)] -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-popover px-3 py-1.5 text-xs shadow-lg animate-in fade-in slide-in-from-top-2 duration-200 sm:text-sm"
+          className="fixed left-1/2 top-16 z-30 flex max-w-[calc(100vw-1.5rem)] -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-popover px-3 py-1.5 text-xs shadow-lg animate-in fade-in slide-in-from-top-2 duration-200 sm:top-3 sm:text-sm"
         >
           <span className="truncate">
             <span className="font-medium tabular-nums">{formatInTimeZone(startUtc, refTz, "h:mm a")}</span>
