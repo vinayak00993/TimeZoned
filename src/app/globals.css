@@ -94,9 +94,9 @@
   --violet-day: #B5542B;
   --accent-warm: #B5542B;
   --accent-sage: #5E7D4C;
-  --shade-work: rgba(94, 125, 76, 0.24);
-  --shade-edge: rgba(94, 125, 76, 0.09);
-  --shade-sleep: transparent;
+  --shade-work: rgba(94, 125, 76, 0.26);
+  --shade-edge: rgba(255, 250, 232, 0.6);
+  --shade-sleep: rgba(59, 42, 18, 0.1);
 }
 
 .dark {
@@ -136,9 +136,9 @@
   --violet-day: #9B8FC0;
   --accent-warm: #D4957A;
   --accent-sage: #8AB08E;
-  --shade-work: rgba(138, 176, 142, 0.2);
-  --shade-edge: rgba(212, 149, 47, 0.07);
-  --shade-sleep: rgba(0, 0, 0, 0.28);
+  --shade-work: rgba(138, 176, 142, 0.22);
+  --shade-edge: rgba(240, 232, 216, 0.07);
+  --shade-sleep: rgba(0, 0, 0, 0.32);
 }
 
 @layer base {

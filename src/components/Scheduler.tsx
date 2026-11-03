@@ -32,9 +32,8 @@ function Legend() {
         <span className="size-2.5 rounded-sm bg-shade-edge ring-1 ring-border" aria-hidden="true" /> early or late
       </span>
       <span className="inline-flex items-center gap-1.5">
-        <span className="size-2.5 rounded-sm ring-1 ring-border" aria-hidden="true" /> night
+        <span className="size-2.5 rounded-sm bg-shade-sleep ring-1 ring-border" aria-hidden="true" /> night
       </span>
-      <span>in each city&apos;s own clock.</span>
       <span className="hidden sm:inline">Drag, or click a start and an end, to pick a slot.</span>
       <span className="sm:hidden">Tap a start and an end to pick a slot.</span>
     </div>
