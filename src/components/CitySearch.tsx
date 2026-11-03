@@ -19,7 +19,7 @@ export function CitySearch({
   exclude,
   onSelect,
   onClose,
-  placeholder = "Search city, country or timezone…",
+  placeholder = "Search city or country…",
   autoFocus = true,
 }: CitySearchProps) {
   const [query, setQuery] = useState("");
@@ -75,7 +75,7 @@ export function CitySearch({
             setActiveIndex(0);
           }}
           onKeyDown={handleKeyDown}
-          className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          className="w-full bg-transparent text-base outline-none placeholder:text-muted-foreground sm:text-sm"
         />
       </div>
       <div ref={listRef} id={listId} role="listbox" className="mt-2 max-h-64 overflow-y-auto">
