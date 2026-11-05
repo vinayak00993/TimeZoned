@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import { ZoneHeader } from "@/components/ZoneHeader";
+import { useReorderDrag } from "@/components/useReorderDrag";
 import { useTimezoneStore, type TimezoneEntry } from "@/store/timezone-store";
 import { classifyHour, formatSlotTime, type Slot } from "@/lib/slots";
 import { cn } from "@/lib/utils";
@@ -52,7 +53,7 @@ export function TimeTable({
   goodSlots,
 }: TimeTableProps) {
   const reorderZones = useTimezoneStore((s) => s.reorderZones);
-  const [drag, setDrag] = useState<{ from: number | null; over: number | null }>({ from: null, over: null });
+  const columnDrag = useReorderDrag(zones.length, reorderZones);
   const currentRowRef = useRef<HTMLDivElement>(null);
   const scrolledRef = useRef(false);
   const pressRef = useRef<{ anchor: number; moved: boolean; prev: Selection | null } | null>(null);
@@ -150,11 +151,6 @@ export function TimeTable({
     }
   }
 
-  const handleDragEnd = () => {
-    if (drag.from !== null && drag.over !== null && drag.from !== drag.over) reorderZones(drag.from, drag.over);
-    setDrag({ from: null, over: null });
-  };
-
   return (
     <div ref={gridRef} role="grid" aria-label="Time comparison table" aria-multiselectable="true" className="select-none">
       {/* Column headers stay pinned while the day scrolls. */}
@@ -168,10 +164,10 @@ export function TimeTable({
               count={zones.length}
               currentTime={currentTime}
               displayDate={displayDate}
-              dragState={drag}
-              onDragStart={(i) => setDrag({ from: i, over: i })}
-              onDragOver={(i) => setDrag((d) => ({ ...d, over: i }))}
-              onDragEnd={handleDragEnd}
+              lifted={columnDrag.lifted === index}
+              cardRef={columnDrag.setEl(index)}
+              onPointerDown={columnDrag.onPointerDown(index)}
+              onClickCapture={columnDrag.onClickCapture}
             />
           ))}
         </div>

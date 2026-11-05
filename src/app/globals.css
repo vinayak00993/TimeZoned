@@ -188,3 +188,17 @@
     box-shadow: inset 0 0 180px rgba(90, 60, 10, 0.08);
   }
 }
+
+/* Theme switch: the toggle animates ::view-transition-new(root) as a growing circle,
+   so turn off the default cross-fade and keep the old frame underneath. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
