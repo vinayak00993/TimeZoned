@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, GripVertical, Pencil, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pencil, X } from "lucide-react";
 import { CitySearch } from "@/components/CitySearch";
 import { makeZoneId, useTimezoneStore, type TimezoneEntry } from "@/store/timezone-store";
 import { useClickOutside } from "@/lib/hooks";
@@ -16,10 +16,11 @@ interface ZoneHeaderProps {
   count: number;
   currentTime: Date;
   displayDate: Date;
-  dragState: { from: number | null; over: number | null };
-  onDragStart: (index: number) => void;
-  onDragOver: (index: number) => void;
-  onDragEnd: () => void;
+  /** True while this card is lifted by a drag. */
+  lifted: boolean;
+  cardRef: (el: HTMLElement | null) => void;
+  onPointerDown: (e: React.PointerEvent) => void;
+  onClickCapture: (e: React.MouseEvent) => void;
 }
 
 export function ZoneHeader({
@@ -28,10 +29,10 @@ export function ZoneHeader({
   count,
   currentTime,
   displayDate,
-  dragState,
-  onDragStart,
-  onDragOver,
-  onDragEnd,
+  lifted,
+  cardRef,
+  onPointerDown,
+  onClickCapture,
 }: ZoneHeaderProps) {
   const [editing, setEditing] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,25 +62,24 @@ export function ZoneHeader({
 
   return (
     <div
-      ref={containerRef}
+      ref={(el) => {
+        containerRef.current = el;
+        cardRef(el);
+      }}
       role="columnheader"
       className={cn(
-        "group relative min-w-0 flex-1 rounded-md border border-border bg-card px-1 py-1.5 text-center sm:px-3 sm:py-2",
-        dragState.from === index && "opacity-50",
-        dragState.over === index && dragState.from !== null && "border-accent-warm/70 ring-1 ring-accent-warm/40"
+        "group relative min-w-0 flex-1 cursor-grab touch-pan-y select-none rounded-md border border-border bg-card px-1 py-1.5 text-center transition-[transform,box-shadow] duration-200 ease-out sm:px-3 sm:py-2",
+        lifted && "z-20 cursor-grabbing shadow-xl ring-1 ring-accent-warm/50 transition-none!"
       )}
-      draggable
-      onDragStart={() => onDragStart(index)}
-      onDragOver={(e) => {
-        e.preventDefault();
-        onDragOver(index);
-      }}
-      onDragEnd={onDragEnd}
+      onPointerDown={onPointerDown}
+      onClickCapture={onClickCapture}
     >
       {/* Controls: visible on hover or keyboard focus */}
-      <div className="absolute inset-x-1 top-1 flex items-center justify-between opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
-        <div className="flex items-center">
-          <GripVertical className="hidden size-3 cursor-grab text-muted-foreground sm:block" aria-hidden="true" />
+      <div
+        data-no-drag
+        className="pointer-events-none absolute inset-x-1 top-1 flex items-center justify-between opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+      >
+        <div className="pointer-events-auto flex items-center">
           <button
             type="button"
             onClick={() => reorderZones(index, index - 1)}
@@ -102,7 +102,7 @@ export function ZoneHeader({
         <button
           type="button"
           onClick={() => removeZone(zone.id)}
-          className="rounded p-0.5 text-muted-foreground hover:text-foreground"
+          className="pointer-events-auto rounded p-0.5 text-muted-foreground hover:text-foreground"
           aria-label={`Remove ${zone.label}`}
         >
           <X className="size-3" aria-hidden="true" />
@@ -140,6 +140,7 @@ export function ZoneHeader({
 
       {editing && (
         <div
+          data-no-drag
           role="dialog"
           aria-label={`Replace ${zone.label}`}
           className="absolute left-1/2 top-full z-50 mt-2 w-[min(16rem,calc(100vw-2rem))] -translate-x-1/2 rounded-lg border border-border bg-popover p-2 text-left shadow-xl"
