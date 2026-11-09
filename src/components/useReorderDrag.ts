@@ -128,13 +128,23 @@ export function useReorderDrag(count: number, onReorder: (from: number, to: numb
       el.style.transform = `translateX(${(over - index) * step}px) scale(1)`;
     }
     window.setTimeout(() => {
-      els.current.forEach((c) => {
-        if (!c) return;
-        c.style.transition = "";
+      // The cards already sit where the new order will put them. Switch
+      // transitions off while the offsets are cleared and React moves the
+      // elements, otherwise each card replays its offset in its new slot.
+      const cards = els.current.filter((c): c is HTMLElement => !!c);
+      cards.forEach((c) => {
+        c.style.transition = "none";
         c.style.transform = "";
       });
       if (over !== index) onReorder(index, over);
       setLifted(null);
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          cards.forEach((c) => {
+            c.style.transition = "";
+          });
+        })
+      );
     }, SETTLE_MS);
   }
 
